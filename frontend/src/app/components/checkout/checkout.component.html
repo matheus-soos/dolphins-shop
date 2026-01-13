@@ -1,0 +1,107 @@
+<main>
+    <div class="wrapper">
+        <div class="header">
+
+        </div>
+
+        <div class="container">
+            <div class="pagamentos">
+                <mat-radio-group aria-label="Select an option" [formControl]="forma_pagamento">
+                    <div class="pagamento">
+                        <mat-radio-button value="pix">PIX</mat-radio-button>
+                    </div>
+
+                    <div class="pagamento" [class.expand]="forma_pagamento.value == 'credito'">
+                        <mat-radio-button value="credito">Cartão de Crédito</mat-radio-button>
+
+                        <form class="dados_cartao" [formGroup]="dadosCartao">
+                            <div class="form-row">
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Número do Cartão</mat-label>
+                                    <input type="text" matInput placeholder="0000 0000 0000 0000"
+                                        mask="0000 0000 0000 0000" formControlName="numero_cartao"
+                                        (keyup)="getCardBrand()">
+                                </mat-form-field>
+                            </div>
+
+                            <div class="form-row">
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Nome Impresso no Cartão:</mat-label>
+                                    <input type="text" matInput placeholder="Nome Completo"
+                                        formControlName="nome_titular">
+                                </mat-form-field>
+                            </div>
+
+                            <div class="form-row">
+                                <mat-form-field appearance="outline">
+                                    <mat-label>CPF ou CNPJ do Titular:</mat-label>
+                                    <input type="text" matInput formControlName="documento_titular" mask="CPF_CNPJ">
+                                </mat-form-field>
+                            </div>
+
+                            <div class="form-row">
+                                <div>
+                                    <p>Validade:</p>
+
+                                    <div class="validade">
+                                        <mat-form-field appearance="outline">
+                                            <mat-label>Mês</mat-label>
+                                            <mat-select formControlName="mes_validade">
+                                                <mat-option *ngFor="let mes of meses" [value]="mes.value">
+                                                    {{ mes.label }}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+
+                                        <mat-form-field appearance="outline">
+                                            <mat-label>Ano</mat-label>
+                                            <mat-select formControlName="ano_validade">
+                                                <mat-option *ngFor="let ano of anos" [value]="ano">
+                                                    {{ ano }}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Código de Segurança</mat-label>
+                                    <input type="text" matInput formControlName="cvv" mask="000">
+                                </mat-form-field>
+                            </div>
+                        </form>
+                    </div>
+                </mat-radio-group>
+            </div>
+
+            <div class="total">
+                <div class="valores">
+                    <div class="valor">
+                        <div class="text">
+                            <p>Subtotal:</p>
+                            <p>{{getSubtotal() | currency: 'BRL'}}</p>
+                        </div>
+                        <div class="text">
+                            <p>Frete:</p>
+                            <p>{{valor_frete | currency: 'BRL'}}</p>
+                        </div>
+                        <div class="text">
+                            <p>Descontos:</p>
+                            <p>{{valor_desconto | currency: 'BRL'}}</p>
+                        </div>
+
+                        <div class="text">
+                            <p id="valor-total">Total a Pagar:</p>
+                            <p id="valor-total">{{getTotal() | currency: 'BRL'}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button type="submit" mat-button (click)="onContinuar()">Continuar</button>
+
+                    <a routerLink="/carrinho">Voltar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

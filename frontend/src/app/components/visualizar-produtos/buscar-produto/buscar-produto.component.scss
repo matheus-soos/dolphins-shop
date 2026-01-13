@@ -1,0 +1,41 @@
+.host {
+    display: grid;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 32px 0;
+}
+
+.header {
+    h2 {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 20px 0 10px 0;
+        color: #4e4e4e;
+        font-weight: 400;
+    }
+
+    span {
+        text-transform: capitalize;
+        font-size: 24px;
+        font-weight: 500;
+        color: #242424;
+    }
+}
+
+.produtos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 60px;
+    padding: 32px 20px;
+}
+
+.sem-resultado {
+    padding: 30px 0;
+}

@@ -1,0 +1,37 @@
+<div class="container">
+    <div class="cadastro">
+        <div class="cadastro-form">
+            <div class="logo">
+                <img src="https://dolphinstech.com.br/assets/logo-sem-fundo.png" alt="Logo">
+            </div>
+
+            <div class="text">
+                <p id="title">Cadastre-se e aproveite ofertas exclusivas!</p>
+                <p id="subtitle">Crie sua conta agora e fique por dentro de promoções e novidades.</p>
+            </div>
+
+            <button mat-flat-button routerLink="/cadastro" (click)="dialogRef.close()">Quero me cadastrar</button>
+        </div>
+    </div>
+    <div class="login">
+        <h2>Já sou cliente</h2>
+
+        <div class="form" [formGroup]="loginForm">
+            <mat-form-field appearance="outline">
+                <mat-label>E-mail</mat-label>
+                <input matInput type="text" formControlName="email">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Senha</mat-label>
+                <input matInput type="password" placeholder="********" formControlName="password">
+            </mat-form-field>
+
+            <div class="forgot-pass">
+                <a href="">Esqueci minha senha</a>
+            </div>
+
+            <button mat-flat-button (click)="login()">Entrar</button>
+        </div>
+    </div>
+</div>

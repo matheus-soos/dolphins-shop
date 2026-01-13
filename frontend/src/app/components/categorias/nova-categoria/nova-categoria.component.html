@@ -1,0 +1,23 @@
+<div class="dialog-container">
+    <div class="dialog-header">
+        <h3>{{ data.edit ? 'Editar Categoria' : 'Nova Categoria' }}</h3>
+
+        <button type="button" mat-icon-button (click)="dialogRef.close()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <form [formGroup]="formCategoria" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+            <div class="form-group">
+                <mat-form-field appearance="outline">
+                    <mat-label>Nome:</mat-label>
+                    <input type="text" matInput formControlName="nome">
+                </mat-form-field>
+            </div>
+        </div>
+
+        <button *ngIf="!data.edit" class="action-bttn" mat-button type="submit">Cadastrar</button>
+        <button *ngIf="data.edit" class="action-bttn" mat-button type="submit">Alterar</button>
+    </form>
+</div>

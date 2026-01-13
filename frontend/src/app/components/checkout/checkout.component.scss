@@ -1,0 +1,155 @@
+.host {
+    display: grid;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 80px 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+    min-height: 100vh;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    width: 100%;
+
+    mat-form-field {
+        width: 100%;
+    }
+}
+
+.pagamentos {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    height: 100%;
+    margin-right: 24px;
+}
+
+.pagamento {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #d6d6d6;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    padding: 12px;
+    height: 40px;
+    min-height: 40px;
+    overflow: hidden;
+}
+
+.expand {
+    min-height: 420px;
+}
+
+.dados_cartao {
+    padding: 32px;
+}
+
+.validade {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+
+    mat-form-field {
+        width: 30%;
+    }
+}
+
+.total {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 300px;
+    border: 2px solid #d6d6d6;
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.valores {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.frete {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 10px;
+
+    button {
+        background-color: #ffffff;
+        color: #525B43;
+        border: 1px solid #525B43;
+        padding-inline: 20px;
+    }
+}
+
+.valor {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-top: 16px;
+
+    .text {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    p {
+        font-size: 14px;
+        margin: 0;
+        margin-bottom: 10px;
+        color: #4b4b4b;
+    }
+}
+
+#valor-total {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #000000;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 120px;
+
+    button {
+        width: 100%;
+        background-color: #525B43;
+        color: #ffffff;
+        margin-bottom: 16px;
+        font-size: 16px;
+    }
+
+    a {
+        font-size: 14px;
+        color: #525B43;
+    }
+}

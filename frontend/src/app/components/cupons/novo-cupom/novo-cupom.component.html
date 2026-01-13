@@ -1,0 +1,69 @@
+<div class="dialog-container">
+    <div class="dialog-header">
+        <h3>{{ data.edit ? 'Editar Cupom' : 'Novo Cupom' }}</h3>
+
+        <button type="button" mat-icon-button (click)="dialogRef.close()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <form [formGroup]="formCupom" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+            <div class="form-group">
+                <mat-form-field appearance="outline">
+                    <mat-label>Código do Cupom</mat-label>
+                    <input type="text" matInput formControlName="codigo" />
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <mat-form-field appearance="outline">
+                    <mat-label>Tipo de Desconto</mat-label>
+                    <mat-select formControlName="tipo">
+                        <mat-option value="percentual">Percentual (%)</mat-option>
+                        <mat-option value="valor">Valor fixo (R$)</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div class="form-group">
+                <mat-form-field appearance="outline">
+                    <mat-label>Valor do Desconto</mat-label>
+                    <input type="number" matInput formControlName="valor" />
+                </mat-form-field>
+            </div>
+
+            <div class="form-group">
+                <mat-form-field appearance="outline">
+                    <mat-label>Quantidade de Usos</mat-label>
+                    <input type="number" matInput formControlName="quantidade_uso" />
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <mat-form-field appearance="outline">
+                    <mat-label>Data de Início</mat-label>
+                    <input matInput [matDatepicker]="inicio" formControlName="data_inicio" />
+                    <mat-datepicker-toggle matSuffix [for]="inicio"></mat-datepicker-toggle>
+                    <mat-datepicker #inicio></mat-datepicker>
+                </mat-form-field>
+            </div>
+
+            <div class="form-group">
+                <mat-form-field appearance="outline">
+                    <mat-label>Data de Fim</mat-label>
+                    <input matInput [matDatepicker]="fim" formControlName="data_fim" />
+                    <mat-datepicker-toggle matSuffix [for]="fim"></mat-datepicker-toggle>
+                    <mat-datepicker #fim></mat-datepicker>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <button *ngIf="!data.edit" class="action-bttn" mat-button type="submit">Cadastrar</button>
+        <button *ngIf="data.edit" class="action-bttn" mat-button type="submit">Alterar</button>
+    </form>
+</div>

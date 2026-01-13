@@ -1,0 +1,48 @@
+<div class="dialog-container">
+    <div class="dialog-header">
+        <h3>{{ data.edit ? 'Editar Usuário' : 'Novo Usuário' }}</h3>
+
+        <button type="button" mat-icon-button (click)="dialogRef.close()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <form [formGroup]="formUser" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+            <div class="form-group">
+                <mat-form-field appearance="outline">
+                    <mat-label>E-mail:</mat-label>
+                    <input type="text" matInput formControlName="email">
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <mat-form-field appearance="outline">
+                    <mat-label>Senha: (8 dígitos)</mat-label>
+                    <input matInput [type]="showPass ? 'text' : 'password'" placeholder="********"
+                        formControlName="password">
+                    <button type="button" mat-icon-button matSuffix (click)="showPass = !showPass"
+                        [attr.aria-pressed]="showPass">
+                        <mat-icon>{{showPass ? 'visibility' : 'visibility_off'}}</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+            <div class="form-group">
+                <mat-form-field appearance="outline">
+                    <mat-label>Confirmar senha:</mat-label>
+                    <input matInput [type]="showConfirmPass ? 'text' : 'password'" placeholder="********"
+                        formControlName="confirmPassword">
+                    <button type="button" mat-icon-button matSuffix (click)="showConfirmPass = !showConfirmPass"
+                        [attr.aria-pressed]="showConfirmPass">
+                        <mat-icon>{{showConfirmPass ? 'visibility' : 'visibility_off'}}</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <button *ngIf="!data.edit" class="action-bttn" mat-button type="submit">Cadastrar</button>
+        <button *ngIf="data.edit" class="action-bttn" mat-button type="submit">Alterar</button>
+    </form>
+</div>

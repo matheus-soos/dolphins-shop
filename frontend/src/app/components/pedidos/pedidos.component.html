@@ -1,0 +1,122 @@
+<div class="wrapper">
+    <div class="actions">
+        <div class="filters">
+            <div class="filter">
+                <mat-icon>search</mat-icon>
+                <input (keyup)="applyFilter($event)" type="text" placeholder="Buscar Pedido...">
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button id="insert-bttn" mat-button routerLink="novo-pedido">Novo Pedido</button>
+
+            <button id="actions-bttn" mat-button [matMenuTriggerFor]="menu">
+                <p>Ações<mat-icon>expand_more</mat-icon></p>
+            </button>
+
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item [disabled]="this.selection.selected.length != 1" (click)="onEditarPedido()">
+                    <mat-icon>edit</mat-icon>
+                    Editar Pedido
+                </button>
+
+                <!-- <button mat-menu-item [disabled]="this.selection.selected.length != 1" (click)="controleEstoque()">
+                <mat-icon>inventory</mat-icon>
+                Controle de Estoque
+            </button>
+
+            <button mat-menu-item (click)="movimentacoes()">
+                <mat-icon>sync_alt</mat-icon>
+                Movimentação Múltipla
+            </button>
+
+            <button mat-menu-item (click)="importarInventario()">
+                <mat-icon>storage</mat-icon>
+                Inventário
+            </button>
+
+            <button mat-menu-item [disabled]="this.selection.selected.length == 0" (click)="toggleStatus()">
+                <mat-icon>remove_circle</mat-icon>
+                Ativar / Inativar
+            </button>
+
+            <button mat-menu-item (click)="export()">
+                <mat-icon>file_download</mat-icon>
+                Exportar CSV
+            </button> -->
+            </mat-menu>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h3>Pedidos</h3>
+        </div>
+
+        <div class="table">
+            <table mat-table [dataSource]="dataSource | searchFilter: searchText" matSort>
+                <ng-container matColumnDef="select">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <!-- <mat-checkbox (change)="$event ? masterToggle() : null"
+                        [checked]="selection.hasValue() && isAllSelected()"
+                        [indeterminate]="selection.hasValue() && !isAllSelected()">
+                    </mat-checkbox> -->
+                    </th>
+                    <td mat-cell *matCellDef="let row" style="padding-inline: 24px;">
+                        <mat-checkbox color="secondary" (click)="$event.stopPropagation()"
+                            (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
+                        </mat-checkbox>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="data_hora">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Data / Hora </th>
+                    <td mat-cell *matCellDef="let pedido"> {{pedido.createdAt}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="cliente">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Cliente </th>
+                    <td mat-cell *matCellDef="let pedido"> {{pedido.Cliente.nome}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+                    <td mat-cell *matCellDef="let pedido"> {{pedido.status}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="forma_pagamento">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Forma de Pagamento </th>
+                    <td mat-cell *matCellDef="let pedido"> {{pedido.forma_pagamento}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="valor_total">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Valor Total </th>
+                    <td mat-cell *matCellDef="let pedido"> {{pedido.valor_total | currency:'BRL'}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="desconto_total">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Desconto </th>
+                    <td mat-cell *matCellDef="let pedido"> {{pedido.desconto_total | currency:'BRL'}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="frete">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Frete </th>
+                    <td mat-cell *matCellDef="let pedido"> {{pedido.frete}} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)"></tr>
+                <tr class="mat-row" id="no-data" *matNoDataRow>
+                    <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+                        Nenhum dado foi encontrado.
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="paginator">
+            <mat-paginator [pageSizeOptions]="[50, 75, 100]">
+            </mat-paginator>
+        </div>
+    </div>
+</div>

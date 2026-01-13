@@ -1,0 +1,21 @@
+<main>
+    <div class="wrapper">
+        <div class="path">
+            <span>Home</span>
+            <mat-icon>chevron_right</mat-icon>
+            <span>{{categoria?.nome}}</span>
+            <mat-icon>chevron_right</mat-icon>
+            <span>{{subcategoria?.nome}}</span>
+        </div>
+
+        <div class="header">
+            <h2>{{subcategoria?.nome}}</h2>
+        </div>
+
+        <div class="produtos">
+            @for (produto of produtos; track $index) {
+            <app-produto-card [produto]="produto"></app-produto-card>
+            }
+        </div>
+    </div>
+</main>

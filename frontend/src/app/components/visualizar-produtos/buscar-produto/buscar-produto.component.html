@@ -1,0 +1,19 @@
+<main>
+    <div class="wrapper">
+
+        <div class="header">
+            <h2>Resultados: <span>{{text}}</span></h2>
+        </div>
+
+        @if (produtos.length > 0) {
+        <div class="produtos">
+            @for (produto of produtos; track $index) {
+            <app-produto-card [produto]="produto"></app-produto-card>
+            }
+        </div>
+        }
+        @else {
+        <p class="sem-resultado">Nenhum resultado encontrado para "{{ text }}".</p>
+        }
+    </div>
+</main>

@@ -1,0 +1,127 @@
+<div class="container">
+    <h2>Cadastro</h2>
+
+    <form [formGroup]="formUser" (ngSubmit)="onSubmit()">
+
+        <fieldset>
+            <legend>Informações Pessoais</legend>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Nome completo</mat-label>
+                    <input type="text" matInput formControlName="nome">
+                </mat-form-field>
+            </div>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>CPF</mat-label>
+                    <input matInput formControlName="cpf" mask="000.000.000-00">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Telefone</mat-label>
+                    <input matInput formControlName="telefone" mask="(00) 00000-0000">
+                </mat-form-field>
+            </div>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>Data de nascimento</mat-label>
+                    <input matInput [matDatepicker]="picker" formControlName="dataNascimento">
+                    <mat-hint>DD/MM/YYYY</mat-hint>
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Endereço</legend>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>CEP</mat-label>
+                    <input matInput formControlName="cep" (blur)="onCepChange()" mask="00000-000">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Rua</mat-label>
+                    <input type="text" matInput formControlName="rua">
+                </mat-form-field>
+            </div>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>Número</mat-label>
+                    <input type="text" matInput formControlName="numero">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Complemento</mat-label>
+                    <input type="text" matInput formControlName="complemento">
+                </mat-form-field>
+            </div>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>Bairro</mat-label>
+                    <input type="text" matInput formControlName="bairro">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Cidade</mat-label>
+                    <input type="text" matInput formControlName="cidade">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Estado</mat-label>
+                    <input type="text" matInput formControlName="estado">
+                </mat-form-field>
+            </div>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline" floatLabel="always">
+                    <mat-label>Nome do Endereço</mat-label>
+                    <input type="text" matInput formControlName="nomeEndereco" placeholder="Ex: Casa, Trabalho...">
+                </mat-form-field>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Usuário</legend>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>E-mail</mat-label>
+                    <input type="email" matInput formControlName="email">
+                </mat-form-field>
+            </div>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>Senha</mat-label>
+                    <input matInput [type]="showPass ? 'text' : 'password'" formControlName="password">
+                    <button type="button" mat-icon-button matSuffix (click)="showPass = !showPass">
+                        <mat-icon>{{ showPass ? 'visibility' : 'visibility_off' }}</mat-icon>
+                    </button>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Confirmar senha</mat-label>
+                    <input matInput [type]="showConfirmPass ? 'text' : 'password'" formControlName="confirmPassword">
+                    <button type="button" mat-icon-button matSuffix (click)="showConfirmPass = !showConfirmPass">
+                        <mat-icon>{{ showConfirmPass ? 'visibility' : 'visibility_off' }}</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+        </fieldset>
+
+        <!-- BOTÃO -->
+        <div class="form-actions">
+            <button mat-flat-button color="primary" type="submit">
+                Cadastrar
+            </button>
+        </div>
+    </form>
+</div>

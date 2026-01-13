@@ -1,0 +1,17 @@
+<div class="produto" (click)="visualizarProduto()">
+    <div class="image">
+        <img [src]="produto.img" alt="">
+    </div>
+
+    <div class="info">
+        <div class="info-row">
+            <p>{{produto.nome}}</p>
+        </div>
+        <div class="info-row">
+            <p>{{produto.valor_venda | currency: 'BRL'}}</p>
+            <button mat-icon-button (click)="adicionarCarrinho(produto); $event.stopPropagation()">
+                <mat-icon>shopping_bag</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>

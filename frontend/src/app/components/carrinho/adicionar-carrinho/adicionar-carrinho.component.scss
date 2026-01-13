@@ -1,0 +1,51 @@
+:host {
+    max-width: 400px;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.container {
+    padding: 30px;
+}
+
+.success-message {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2e7d32;
+    margin-bottom: 30px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+button.mat-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-transform: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.continue-button {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.continue-button:hover {
+    background-color: #d5d5d5;
+}
+
+.cart-button {
+    background-color: #1976d2;
+    color: white;
+}
+
+.cart-button:hover {
+    background-color: #1565c0;
+}

@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+:root {
+  --primary-color: #970000;
+  --text-color: #ffffff;
+  --mat-dialog-container-max-width: auto;
+  --mat-dialog-container-min-width: 400px;
+}
+
+.wrapper {
+  max-width: 1210px;
+  width: 100%;
+  margin: 0;
+}
+
+.table {
+  display: flex;
+  width: 100%;
+  height: auto;
+  border: 1px solid #22222242;
+  overflow: auto;
+
+  table {
+    width: 100%;
+  }
+
+  .mat-mdc-header-cell {
+    background-color: #e6e6e6 !important;
+  }
+}
+
+#no-data td {
+  cursor: initial;
+  text-align: center;
+  color: #2222228a;
+  height: 48px;
+}
+
+.paginator {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  padding-top: 20px;
+}

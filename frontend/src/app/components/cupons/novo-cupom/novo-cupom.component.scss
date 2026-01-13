@@ -1,0 +1,70 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    padding: 32px;
+    overflow: auto;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    width: auto;
+    justify-content: space-between;
+
+    .action-bttn {
+        color: #3b3b3b;
+        border: 1px solid #3b3b3b;
+        padding-inline: 32px;
+    }
+}
+
+.dialog-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 32px;
+
+    h3 {
+        margin: 0;
+    }
+
+    button {
+        background-color: transparent;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #888;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: #000;
+            background-color: #ececec;
+        }
+    }
+}
+
+.form-row {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-bottom: 20px;
+
+    .form-group+.form-group {
+        margin-left: 32px;
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+
+    .mat-mdc-form-field {
+        width: 100%;
+    }
+}

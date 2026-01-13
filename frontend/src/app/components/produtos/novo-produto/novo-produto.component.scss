@@ -1,0 +1,145 @@
+:host {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 0;
+    overflow: auto;
+    background-color: #f9f9f9;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1200px;
+    background-color: white;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 12px;
+
+    h2 {
+        margin: 0;
+        font-size: 24px;
+    }
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    flex: 1;
+
+    .mat-mdc-form-field {
+        width: 100%;
+    }
+}
+
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 24px;
+
+    button {
+        min-width: 160px;
+        padding: 10px 20px;
+        font-weight: 500;
+        border-radius: 6px;
+    }
+
+    .action-bttn {
+        background-color: #1976d2;
+        color: white;
+    }
+
+    .back-bttn {
+        background-color: #eeeeee;
+        color: #444;
+    }
+}
+
+.addBttn {
+    margin-left: 8px;
+    background-color: #eeeeee;
+    color: #555;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:hover {
+        background-color: #e0e0e0;
+        color: #000;
+    }
+}
+
+.dialog {
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+    width: 60vw;
+    padding: 24px;
+}
+
+.dialog-button {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 20px;
+
+    button {
+        background-color: #1976d2;
+        color: white;
+    }
+}
+
+.filter {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: 300px;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    input {
+        border: none;
+        outline: none;
+        width: 100%;
+    }
+
+    .mat-icon {
+        color: #666;
+    }
+}
+
+.checked {
+    background-color: rgba(0, 162, 255, 0.05);
+
+    &:hover {
+        background-color: rgba(0, 162, 255, 0.08) !important;
+    }
+}

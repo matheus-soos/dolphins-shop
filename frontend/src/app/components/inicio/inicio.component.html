@@ -1,0 +1,65 @@
+<section>
+  <div class="banners">
+    <img src="https://lojaseconomica.com.br/wp-content/uploads/2024/04/3.png" alt="" style="max-height: 500px;">
+  </div>
+</section>
+
+<section class="produtos-section">
+  <div class="produtos-content">
+    <h1>Mais Vendidos</h1>
+
+    <div class="produtos-row">
+      <mat-icon class="arrow">arrow_back_ios</mat-icon>
+
+      <div class="wrapper">
+        <div class="produtos">
+          @for (produto of produtos; track $index) {
+          <app-produto-card [produto]="produto"></app-produto-card>
+          }
+        </div>
+      </div>
+
+      <mat-icon class="arrow">arrow_forward_ios</mat-icon>
+    </div>
+  </div>
+
+  <div class="produtos-content">
+    <h1>Ofertas</h1>
+
+    <div class="produtos-row">
+      <mat-icon class="arrow">arrow_back_ios</mat-icon>
+
+      <div class="wrapper">
+        <div class="produtos">
+          @for (produto of produtos; track $index) {
+          <app-produto-card [produto]="produto"></app-produto-card>
+          }
+        </div>
+      </div>
+
+      <mat-icon class="arrow">arrow_forward_ios</mat-icon>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="banners">
+    <img src="https://lojaseconomica.com.br/wp-content/uploads/2024/04/2-1.png" alt="" style="max-height: 250px;">
+  </div>
+
+  <div class="newsletter">
+    <div class="description">
+      <h1>Inscreva-se na Newsletter</h1>
+
+      <p>Receba novidades, lançamentos e promoções em seu e-mail. </p>
+    </div>
+
+    <div class="form">
+      <div class="input">
+        <input type="text" placeholder="Digite seu E-mail">
+      </div>
+
+      <button mat-button>Enviar</button>
+    </div>
+  </div>
+</section>

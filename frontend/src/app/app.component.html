@@ -1,0 +1,120 @@
+<header class="header">
+  @if (usersService.isAdmin()) {
+  <div class="admin-menu">
+    <ul style="display: flex;">
+      <li class="dropdown">
+        <a class="dropdown-toggle">Cadastros</a>
+        <ul class="dropdown-menu">
+          <li><a routerLink="admin/produtos">Produtos</a></li>
+          <li><a routerLink="admin/categorias">Categorias</a></li>
+          <li><a routerLink="admin/users">Usuários</a></li>
+          <li><a routerLink="admin/cupons">Cupons</a></li>
+          <li><a routerLink="admin/pedidos">Pedidos de Venda</a></li>
+        </ul>
+      </li>
+      <li class="dropdown">
+        <a class="dropdown-toggle">Configurações</a>
+      </li>
+    </ul>
+  </div>
+  }
+
+  <div class="wrapper">
+    <div class="menu">
+      <div class="logo">
+        <img src="https://economicaonline.com.br/assets/logo-11.png" alt="Logo" routerLink="/">
+      </div>
+
+      <div class="search">
+        <div class="icon">
+          <mat-icon>search</mat-icon>
+        </div>
+
+        <form (submit)="buscaProdutos()">
+          <div class="input">
+            <input type="text" placeholder="Buscar Produto, Marca ou Código..." [formControl]="textoBusca">
+          </div>
+        </form>
+      </div>
+
+      <div class="actions">
+        <p (click)="openLogin()">Sign In</p>
+
+        <mat-icon>favorite</mat-icon>
+
+        <mat-icon routerLink="/carrinho" [matBadge]="getQuantidadeCarrinho()">shopping_bag</mat-icon>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="categorias-bar">
+    <div class="wrapper">
+      <div class="categorias">
+        @for (categoria of categorias; track $index) {
+        <div class="categoria" (mouseenter)="categoriaExpand($event); categoriaSelecionada = categoria"
+          (mouseleave)="categoriaExpand($event)">
+          <p>{{categoria.nome}}</p>
+
+          <mat-icon>arrow_drop_down</mat-icon>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="categoria-expanded" id="categoria-expanded" (mouseenter)="categoriaExpand($event)"
+    (mouseleave)="categoriaExpand($event)">
+    <div class="wrapper">
+      <div class="subcategorias">
+        @for (item of subCategoria; track $index) {
+        <div class="subcategoria" (click)="visualizarProdutos(categoriaSelecionada, item)">
+          <p>{{item.nome}}</p>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-column">
+      <h4>Econômica</h4>
+      <p>Felicidade nas pequenas coisas da vida.</p>
+    </div>
+
+    <div class="footer-column">
+      <h4>Institucional</h4>
+      <ul>
+        <li><a href="#">Sobre nós</a></li>
+        <li><a href="#">Política de Privacidade</a></li>
+        <li><a href="#">Termos de uso</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <h4>Contato</h4>
+      <p>Telefone: (11) 9999-9999</p>
+      <p>Email: contato&#64;economica.com.br</p>
+    </div>
+
+    <div class="footer-column">
+      <h4>Redes Sociais</h4>
+      <div class="social-links">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    © 2025 Lojas Econômica. Todos os direitos reservados.
+  </div>
+</footer>

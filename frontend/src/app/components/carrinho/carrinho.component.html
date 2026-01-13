@@ -1,0 +1,125 @@
+<main>
+    <div class="wrapper">
+        <div class="header">
+            <h3>Carrinho</h3>
+        </div>
+
+        <div class="container">
+            <div class="carrinho">
+                <div class="itens" *ngIf="carrinho?.Itens_Carrinho?.length > 0; else carrinhoVazio">
+                    @for (item of carrinho?.Itens_Carrinho; track $index) {
+                    <div class="item">
+                        <div class="image">
+                            <img [src]="item.Produto.img" alt="">
+                        </div>
+                        <div class="details">
+                            <div class="info">
+                                <p>{{item.Produto.nome}}</p>
+                                <p>{{item.Produto.valor_venda * item.quantidade | currency: 'BRL'}}</p>
+                            </div>
+                            <div class="actions">
+                                <button mat-icon-button (click)="excluirItem(item.Produto.id)"><mat-icon>delete</mat-icon></button>
+                                <div class="quantidade">
+                                    <mat-icon (click)="removerItem(item.Produto.id)">remove</mat-icon>
+                                    <p>{{item.quantidade}}</p>
+                                    <mat-icon (click)="adicionarItem(item.Produto.id)">add</mat-icon>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+
+                <ng-template #carrinhoVazio>
+                    <div class="carrinho-vazio">
+                        <p>Seu carrinho está vazio.</p>
+                    </div>
+                </ng-template>
+            </div>
+
+            <div class="total">
+                <div class="valores">
+                    <div>
+                        <p>Frete e Prazo:</p>
+
+                        <div class="frete">
+                            <mat-form-field>
+                                <mat-label>Digite seu CEP:</mat-label>
+                                <input type="text" matInput mask="00000-000" [formControl]="cep_destino">
+                            </mat-form-field>
+
+                            <button mat-button (click)="onCalcularFrete()">Calcular</button>
+                        </div>
+
+                        <ng-container>
+                            <mat-radio-group [formControl]="freteSelecionado" class="frete-list" (change)="selectFrete()">
+                                <mat-card *ngFor="let frete of fretes" class="frete-card">
+                                    <mat-radio-button [value]="frete" style="width: 100%;">
+                                        <div class="frete-card-content">
+                                            <div class="frete-nome" style="width: 200px;">
+                                                <strong>{{ frete.company.name }} - {{ frete.name }}</strong>
+                                                <span>{{ frete.delivery_time }} dia(s) útil(eis)</span>
+                                            </div>
+                                            <div class="frete-preco">
+                                                <span *ngIf="frete.price == 0" class="preco-gratis">GRÁTIS</span>
+                                                <span *ngIf="frete.price > 0">R$ {{ frete.price | number: '1.2-2'
+                                                    }}</span>
+                                            </div>
+                                        </div>
+                                    </mat-radio-button>
+                                </mat-card>
+                            </mat-radio-group>
+                        </ng-container>
+                    </div>
+
+                    <div>
+                        <p>Cupom de Desconto:</p>
+
+                        <div class="frete">
+                            <mat-form-field>
+                                <mat-label>Insira o Código:</mat-label>
+                                <input type="text" matInput [formControl]="cupom">
+                                <!-- Mensagem de erro -->
+                                <mat-error *ngIf="cupom?.hasError('apiError')">
+                                    {{ cupom.getError('apiError') }}
+                                </mat-error>
+                                <!-- Mensagem de sucesso -->
+                                <mat-hint *ngIf="mensagemSucessoCupom" style="color: green;">
+                                    {{ mensagemSucessoCupom }}
+                                </mat-hint>
+                            </mat-form-field>
+
+                            <button mat-button (click)="onAplicarCupom()">Aplicar</button>
+                        </div>
+                    </div>
+
+                    <div class="valor">
+                        <div class="text">
+                            <p>Subtotal:</p>
+                            <p>{{getSubtotal() | currency: 'BRL'}}</p>
+                        </div>
+                        <div class="text">
+                            <p>Frete:</p>
+                            <p>{{valor_frete | currency: 'BRL'}}</p>
+                        </div>
+                        <div class="text">
+                            <p>Descontos:</p>
+                            <p>{{valor_desconto | currency: 'BRL'}}</p>
+                        </div>
+
+                        <div class="text">
+                            <p id="valor-total">Total a Pagar:</p>
+                            <p id="valor-total">{{getTotal() | currency: 'BRL'}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button mat-button (click)="onFinalizar()">Finalizar Compra</button>
+
+                    <a routerLink="/">Continuar Comprando</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

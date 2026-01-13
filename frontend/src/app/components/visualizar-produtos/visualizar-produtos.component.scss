@@ -1,0 +1,46 @@
+.host {
+    display: grid;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 32px 0;
+}
+
+.header {
+    h2 {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 20px 0 10px 0;
+        color: #333;
+    }
+}
+
+.path {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    text-align: center;
+
+    span {
+        font-size: 14px;
+    }
+
+    mat-icon {
+        font-size: 20px;
+    }
+}
+
+.produtos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 60px;
+    padding: 32px 20px;
+}

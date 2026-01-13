@@ -1,0 +1,65 @@
+<div class="header">
+  <h2>SubCategorias</h2>
+  <button mat-icon-button (click)="dialogRef.close()" aria-label="Fechar">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div [formGroup]="formSubcategoria" class="form">
+  <div class="form-row">
+    <mat-form-field appearance="outline">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="nome" autocomplete="off" />
+    </mat-form-field>
+
+    <button mat-icon-button color="primary" type="button" (click)="onCadastrar()" matTooltip="Cadastrar">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+</div>
+
+<div class="buttons">
+  <button mat-icon-button color="accent" [disabled]="selection.selected.length !== 1" type="button" matTooltip="Editar">
+    <mat-icon>edit</mat-icon>
+  </button>
+
+  <button mat-icon-button color="warn" [disabled]="selection.selected.length === 0" type="button" matTooltip="Ativar / Inativar">
+    <mat-icon>remove_circle</mat-icon>
+  </button>
+</div>
+
+<div class="table mat-elevation-z2">
+  <table mat-table [dataSource]="dataSource" class="full-width-table">
+
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? selection.toggle(row) : null"
+          [checked]="selection.isSelected(row)">
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="nome">
+      <th mat-header-cell *matHeaderCellDef> Nome </th>
+      <td mat-cell *matCellDef="let subcategoria"> {{ subcategoria.nome }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef> Status </th>
+      <td mat-cell *matCellDef="let subcategoria"> {{ subcategoria.status }} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)"></tr>
+
+    <tr class="mat-row" id="no-data" *matNoDataRow>
+      <td class="mat-cell empty-message" [attr.colspan]="displayedColumns.length">
+        Nenhum dado foi encontrado.
+      </td>
+    </tr>
+
+  </table>
+</div>

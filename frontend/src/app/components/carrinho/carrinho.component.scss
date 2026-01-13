@@ -1,0 +1,215 @@
+.host {
+    display: grid;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 44px 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+}
+
+.carrinho {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    height: 100%;
+    margin-right: 24px;
+}
+
+.itens {
+    display: flex;
+    flex-direction: column;
+}
+
+.item {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #d6d6d6;
+    padding: 12px 0;
+
+    img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        padding: 10px;
+    }
+}
+
+.details {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    padding-inline: 20px;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    min-width: 170px;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.quantidade {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    p {
+        padding-inline: 10px;
+        margin: 0;
+    }
+
+    mat-icon {
+        cursor: pointer;
+    }
+}
+
+
+.total {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 330px;
+    border: 2px solid #d6d6d6;
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.valores {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.frete {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+
+    mat-form-field {
+        width: 100%;
+    }
+
+    button {
+        background-color: #ffffff;
+        color: #525B43;
+        border: 1px solid #525B43;
+        padding-inline: 20px;
+        min-width: 90px;
+    }
+}
+
+.frete-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.frete-card {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.frete-card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.frete-nome span {
+    font-size: 13px;
+    color: #666;
+    display: block;
+    width: 100%;
+}
+
+.frete-preco {
+    font-weight: bold;
+    color: #2e7d32;
+
+    span {
+        white-space: nowrap;
+    }
+}
+
+.preco-gratis {
+    color: #00796b;
+    font-weight: bold;
+}
+
+.valor {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-top: 16px;
+
+    .text {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    p {
+        font-size: 14px;
+        margin: 0;
+        margin-bottom: 10px;
+        color: #4b4b4b;
+    }
+}
+
+#valor-total {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #000000;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 120px;
+
+    button {
+        width: 100%;
+        background-color: #525B43;
+        color: #ffffff;
+        margin-bottom: 16px;
+        font-size: 16px;
+    }
+
+    a {
+        font-size: 14px;
+        color: #525B43;
+    }
+}
