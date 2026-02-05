@@ -1,40 +1,51 @@
-import { HttpClient, HttpRequest } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CheckoutService {
-    chargePix: any
+    chargePix: any;
 
-    constructor(
-        private http: HttpClient
-    ) { }
+    constructor(private http: HttpClient) { }
 
     calcularFrete(reqObj: any): Observable<any> {
-        return this.http.post(environment.API_URL + "/checkout/calcularFrete", reqObj)
+        return this.http.post(environment.API_URL + "/frete/calcularFrete", reqObj);
     }
 
-    pagamentoCartao(temporaryToken: string, amount: number) {
-        const req = {
-            temporaryToken,
-            amount
-        }
-
-        return this.http.post(environment.API_URL + "/safrapay/pagamentoCartao", req)
+    finalizarCartao(reqObj: {
+        itens: any[],
+        frete?: number,
+        temporaryToken: string
+    }) {
+        return this.http.post(environment.API_URL + "/checkout/finalizar/cartao", reqObj);
     }
 
-    pagamentoPix(amount: number) {
-        const req = {
-            amount
-        }
-
-        return this.http.post(environment.API_URL + "/safrapay/pagamentoPix", req)
+    finalizarPix(reqObj: {
+        itens: any[],
+        frete?: number,
+    }) {
+        return this.http.post(environment.API_URL + "/checkout/finalizar/pix", reqObj);
     }
 
     getPagamento(chargeId: string) {
-        return this.http.get<any>(environment.API_URL + "/safrapay/consultaPix/" + chargeId);
+        return this.http.get<any>(environment.API_URL + "/pagamentos/getPagamento/" + chargeId);
+    }
+
+    private key = 'checkout_state';
+
+    set(data: any) {
+        sessionStorage.setItem(this.key, JSON.stringify(data));
+    }
+
+    get() {
+        const raw = sessionStorage.getItem(this.key);
+        return raw ? JSON.parse(raw) : null;
+    }
+
+    clear() {
+        sessionStorage.removeItem(this.key);
     }
 }

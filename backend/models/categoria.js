@@ -7,6 +7,11 @@ const Categoria = database.define("Categoria", {
         autoIncrement: true,
         primaryKey: true
     },
+    cod_categoria: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true
+    },
     nome: {
         type: DataTypes.STRING,
         allowNull: false

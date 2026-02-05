@@ -4,7 +4,7 @@ import { LOCALE_ID } from '@angular/core';
 
 import { routes } from './app.routes';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
-import { HTTP_INTERCEPTORS, provideHttpClient } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 
@@ -34,7 +34,7 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthInterceptor,
       multi: true
     },
-    provideHttpClient(),
+    provideHttpClient(withInterceptorsFromDi()),
     provideNativeDateAdapter(MY_FORMATS),
     provideEnvironmentNgxMask()
   ]

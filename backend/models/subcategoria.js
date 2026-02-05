@@ -7,6 +7,11 @@ const Subcategoria = database.define("Subcategoria", {
         autoIncrement: true,
         primaryKey: true
     },
+    cod_categoria: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true
+    },
     categoria_id: {
         type: Sequelize.INTEGER,
         foreignKey: true,

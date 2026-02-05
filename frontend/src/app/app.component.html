@@ -42,7 +42,7 @@
 
         <mat-icon>favorite</mat-icon>
 
-        <mat-icon routerLink="/carrinho" [matBadge]="getQuantidadeCarrinho()">shopping_bag</mat-icon>
+        <mat-icon routerLink="/carrinho" [matBadge]="qtdCarrinho">shopping_bag</mat-icon>
       </div>
     </div>
   </div>
@@ -50,7 +50,7 @@
 
 <section>
   <div class="categorias-bar">
-    <div class="wrapper">
+    <div class="wrapper" style="max-width: 80%;">
       <div class="categorias">
         @for (categoria of categorias; track $index) {
         <div class="categoria" (mouseenter)="categoriaExpand($event); categoriaSelecionada = categoria"
@@ -69,7 +69,7 @@
     <div class="wrapper">
       <div class="subcategorias">
         @for (item of subCategoria; track $index) {
-        <div class="subcategoria" (click)="visualizarProdutos(categoriaSelecionada, item)">
+        <div class="subcategoria" (click)="visualizarProdutos(categoriaSelecionada, item); categoriaExpand($event)">
           <p>{{item.nome}}</p>
         </div>
         }
@@ -115,6 +115,6 @@
   </div>
 
   <div class="footer-bottom">
-    © 2025 Lojas Econômica. Todos os direitos reservados.
+    © 2026 Lojas Econômica. Todos os direitos reservados.
   </div>
 </footer>

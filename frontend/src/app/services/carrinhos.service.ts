@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -8,134 +8,136 @@ import { environment } from '../../environments/environment';
 })
 export class CarrinhosService {
 
-  constructor(
-    private http: HttpClient
-  ) { }
+  private qtdCarrinhoSubject = new BehaviorSubject<number>(0);
+  qtdCarrinho$ = this.qtdCarrinhoSubject.asObservable();
 
-  async adicionarItem(produto_id: number, quantidade?: number) {
+  constructor(private http: HttpClient) {
+    this.atualizarQuantidadeCarrinho();
+  }
+
+  criarCarrinho(user_id?: number) {
+    return this.http.post(environment.API_URL + "/carrinhos/criarCarrinho", { user_id });
+  }
+
+  getCarrinhoId(): number | null {
+    const cartRaw = localStorage.getItem("cart");
+    if (!cartRaw) return null;
+
+    return JSON.parse(cartRaw).id;
+  }
+
+  setCarrinhoId(id: number) {
+    localStorage.setItem("cart", JSON.stringify({ id }));
+  }
+
+  getCarrinho(): Observable<any> {
+    const carrinhoId = this.getCarrinhoId();
+
+    if (!carrinhoId) {
+      return new Observable((observer) => {
+        this.criarCarrinho().subscribe({
+          next: (res: any) => {
+            this.setCarrinhoId(res.carrinho.id);
+            observer.next(res);
+            observer.complete();
+          },
+          error: (err) => observer.error(err)
+        });
+      });
+    }
+
+    return this.http.get(environment.API_URL + "/carrinhos/getCarrinho/" + carrinhoId);
+  }
+
+  atualizarQuantidadeCarrinho() {
+    const carrinhoId = this.getCarrinhoId();
+
+    if (!carrinhoId) {
+      this.qtdCarrinhoSubject.next(0);
+      return;
+    }
+
+    this.http.get<any>(environment.API_URL + "/carrinhos/getCarrinho/" + carrinhoId)
+      .subscribe({
+        next: (res) => {
+          const carrinho = res.carrinho || res;
+          const itens = carrinho?.Itens_Carrinho || [];
+
+          let soma = 0;
+          itens.forEach((item: any) => soma += item.quantidade);
+
+          this.qtdCarrinhoSubject.next(soma);
+        },
+        error: () => {
+          this.qtdCarrinhoSubject.next(0);
+        }
+      });
+  }
+
+  adicionarItem(produto_id: number, quantidade: number = 1) {
     return new Promise((resolve, reject) => {
-      const cart = localStorage.getItem("cart");
+      const carrinhoId = this.getCarrinhoId();
 
-      if (!cart) {
+      if (!carrinhoId) {
         this.criarCarrinho().subscribe({
           next: (response: any) => {
-            const novoCarrinho = response.carrinho;
-            localStorage.setItem("cart", JSON.stringify(novoCarrinho));
+            const novoId = response.carrinho.id;
+            this.setCarrinhoId(novoId);
 
             const reqObj = {
               produto_id,
-              carrinho_id: novoCarrinho.id,
+              carrinho_id: novoId,
               quantidade
-            }
+            };
 
             this.http.post(environment.API_URL + "/carrinhos/adicionarItem", reqObj).subscribe({
               next: (res: any) => {
-                localStorage.setItem("cart", JSON.stringify(res.carrinho));
-                resolve(res.carrinho)
+                this.atualizarQuantidadeCarrinho();
+                resolve(res);
               },
-              error: (err) => {
-                console.error("Erro ao adicionar item:", err);
-                reject()
-              }
+              error: (err) => reject(err)
             });
           },
-          error: (err) => {
-            console.error("Erro ao criar carrinho:", err);
-            reject()
-          }
+          error: (err) => reject(err)
         });
-      } else {
-        const carrinho = JSON.parse(cart)
-        const reqObj = {
-          produto_id,
-          carrinho_id: carrinho.id,
-          quantidade
-        }
 
-        this.http.post(environment.API_URL + "/carrinhos/adicionarItem", reqObj).subscribe({
-          next: (res: any) => {
-            localStorage.setItem("cart", JSON.stringify(res.carrinho));
-            resolve(res.carrinho)
-          },
-          error: (err) => {
-            console.error("Erro ao adicionar item:", err);
-            reject()
-          }
-        });
+        return;
       }
-    })
+
+      const reqObj = {
+        produto_id,
+        carrinho_id: carrinhoId,
+        quantidade
+      };
+
+      this.http.post(environment.API_URL + "/carrinhos/adicionarItem", reqObj).subscribe({
+        next: (res: any) => {
+          this.atualizarQuantidadeCarrinho();
+          resolve(res);
+        },
+        error: (err) => reject(err)
+      });
+    });
   }
 
   removerItem(produto_id: number, destroy: boolean) {
     return new Promise((resolve, reject) => {
-      const cart = localStorage.getItem("cart");
+      const carrinhoId = this.getCarrinhoId();
+      if (!carrinhoId) return reject("Carrinho não encontrado");
 
-      if (!cart) {
-        return reject()
-      }
-
-      const carrinho = JSON.parse(cart)
       const reqObj = {
         produto_id,
-        carrinho_id: carrinho.id,
+        carrinho_id: carrinhoId,
         destroy
-      }
+      };
 
       this.http.post(environment.API_URL + "/carrinhos/removerItem", reqObj).subscribe({
         next: (res: any) => {
-          localStorage.setItem("cart", JSON.stringify(res.carrinho));
-          resolve(res.carrinho)
+          this.atualizarQuantidadeCarrinho();
+          resolve(res);
         },
-        error: (err) => {
-          console.error("Erro ao adicionar item:", err);
-          reject()
-        }
+        error: (err) => reject(err)
       });
-    })
-  }
-
-  criarCarrinho(user_id?: number) {
-    return this.http.post(environment.API_URL + "/carrinhos/criarCarrinho", { user_id })
-  }
-
-  getCarrinho() {
-    const cart = localStorage.getItem("cart")
-
-    if (cart) {
-      return JSON.parse(cart)
-    }
-
-    this.criarCarrinho().subscribe({
-      next: (response: any) => {
-        const novoCarrinho = response.carrinho;
-        localStorage.setItem("cart", JSON.stringify(novoCarrinho));
-        return novoCarrinho
-      },
-      error: (err) => {
-        console.error("Erro ao criar carrinho:", err);
-      }
     });
-  }
-
-  getQuantidadeCarrinho() {
-    const cart = localStorage.getItem("cart")
-
-    if (cart) {
-      const carrinho = JSON.parse(cart)
-
-      const itens = carrinho.Itens_Carrinho
-
-      if (itens.length > 0) {
-        let soma = 0
-
-        itens.forEach((item: any) => {
-          soma += item.quantidade
-        })
-
-        return soma
-      }
-    }
-
-    return 0
   }
 }

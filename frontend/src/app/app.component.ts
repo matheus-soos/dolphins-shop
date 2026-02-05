@@ -38,13 +38,16 @@ export class AppComponent implements OnInit {
   categorias: any[] = []
   categoriaSelecionada: any
   textoBusca = new FormControl('')
+  qtdCarrinho: number = 0;
 
   ngOnInit(): void {
     this.getCategorias().subscribe((response) => {
       this.categorias = response.categorias
     })
 
-    this.carrinhosService.getQuantidadeCarrinho()
+    this.carrinhosService.qtdCarrinho$.subscribe((qtd) => {
+      this.qtdCarrinho = qtd;
+    });
   }
 
   openLogin() {
@@ -80,13 +83,9 @@ export class AppComponent implements OnInit {
   visualizarProdutos(categoria: any, subcategoria: any) {
     const categoriaSlug = slugify(categoria.nome, { lower: true, strict: true })
     const subcategoriaSlug = slugify(subcategoria.nome, { lower: true, strict: true })
-    const path =  `buscar/categoria/${categoriaSlug}/${subcategoriaSlug}`
-    
-    this.router.navigate([path])
-  }
+    const path = `buscar/categoria/${categoriaSlug}/${subcategoriaSlug}`
 
-  getQuantidadeCarrinho() {
-    return this.carrinhosService.getQuantidadeCarrinho()
+    this.router.navigate([path])
   }
 
   buscaProdutos() {

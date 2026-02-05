@@ -11,10 +11,6 @@ const Pedido_Venda = database.define("Pedido_Venda", {
         type: Sequelize.INTEGER,
         allowNull: false
     },
-    endereco_entrega_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true
-    },
     cupom_id: {
         type: Sequelize.INTEGER,
         allowNull: true

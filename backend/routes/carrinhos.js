@@ -33,6 +33,30 @@ router.post("/criarCarrinho", async (req, res, next) => {
     }
 })
 
+router.get("/getCarrinho/:id", async (req, res, next) => {
+    try {
+        const id = req.params.id
+
+        const carrinho = await Carrinho.findByPk(id, {
+            include: [
+                {
+                    model: Item_Carrinho,
+                    as: "Itens_Carrinho",
+
+                    include: [{ model: Produto, as: "Produto" }]
+                }
+            ],
+            order: [
+                [{ model: Item_Carrinho, as: "Itens_Carrinho" }, "id", "ASC"]
+            ]
+        });
+
+        res.json(carrinho)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
 router.post("/adicionarItem", async (req, res, next) => {
     const { carrinho_id, produto_id, quantidade = 1 } = req.body;
 

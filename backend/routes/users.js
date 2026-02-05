@@ -3,7 +3,6 @@ const router = require("express").Router()
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken");
 const Cliente = require("../models/cliente");
-const Endereco = require("../models/endereco");
 
 router.post('/register', async (req, res, next) => {
     try {
@@ -39,7 +38,13 @@ router.post('/register', async (req, res, next) => {
 
         user.token = token
 
-        res.status(201).json(user)
+        res.status(201).json({
+            user: user,
+            token: {
+                token: token,
+                expiresIn: expiresIn
+            }
+        })
     }
     catch (err) {
         console.log(err)
@@ -111,7 +116,7 @@ router.get("/getUser/:id", async (req, res, next) => {
 
 router.post('/cadastroCliente', async (req, res, next) => {
     try {
-        const { email, password, nome, cpf, telefone, dataNascimento, endereco } = req.body
+        const { email, password, nome, cpf, telefone, dataNascimento, cep, rua, numero, complemento, bairro, cidade, estado, } = req.body
 
         if (!(email && password)) {
             return res.status(400).send("Preencha os campos obrigatórios")
@@ -138,20 +143,14 @@ router.post('/cadastroCliente', async (req, res, next) => {
             nome: nome,
             cpf: cpf,
             telefone: telefone,
-            data_nascimento: new Date(dataNascimento)
-        })
-
-        await Endereco.create({
-            cliente_id: cliente.id,
-            nome: endereco.nomeEndereco,
-            cep: endereco.cep,
-            rua: endereco.rua,
-            numero: endereco.numero,
-            complemento: endereco.complemento,
-            bairro: endereco.bairro,
-            cidade: endereco.cidade,
-            estado: endereco.estado,
-            principal: true
+            data_nascimento: new Date(dataNascimento),
+            cep,
+            rua,
+            numero,
+            complemento,
+            bairro,
+            cidade,
+            estado,
         })
 
         const expiresIn = "30d"

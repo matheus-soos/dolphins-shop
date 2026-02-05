@@ -59,43 +59,54 @@ export class CarrinhoComponent implements OnInit {
   }
 
   getCarrinho() {
-    const carrinho = this.carrinhosService.getCarrinho()
+    this.carrinhosService.getCarrinho().subscribe({
+      next: (response: any) => {
+        const carrinho = response.carrinho || response;
 
-    carrinho?.Itens_Carrinho.forEach((item: any) => {
-      item.Produto.img = this.produtosService.getImageURL(item.Produto.imgPath)
-    })
+        carrinho?.Itens_Carrinho?.forEach((item: any) => {
+          item.Produto.img = this.produtosService.getImageURL(item.Produto.imgPath);
+        });
 
-    this.carrinho = carrinho
+        this.carrinho = carrinho;
+      },
+      error: (err) => {
+        console.error(err);
+        alert("Erro ao carregar carrinho.");
+      }
+    });
   }
 
   adicionarItem(produto_id: number) {
-    this.carrinhosService.adicionarItem(produto_id).catch((error) => {
-      console.error(error)
-      alert("Erro Encontrado. Tente novamente.")
-      throw error
-    }).then(() => {
-      this.getCarrinho()
-    })
+    this.carrinhosService.adicionarItem(produto_id)
+      .then(() => {
+        this.getCarrinho();
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("Erro Encontrado. Tente novamente.");
+      });
   }
 
   removerItem(produto_id: number) {
-    this.carrinhosService.removerItem(produto_id, false).catch((error) => {
-      console.error(error)
-      alert("Erro Encontrado. Tente novamente.")
-      throw error
-    }).then(() => {
-      this.getCarrinho()
-    })
+    this.carrinhosService.removerItem(produto_id, false)
+      .then(() => {
+        this.getCarrinho();
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("Erro Encontrado. Tente novamente.");
+      });
   }
 
   excluirItem(produto_id: number) {
-    this.carrinhosService.removerItem(produto_id, true).catch((error) => {
-      console.error(error)
-      alert("Erro Encontrado. Tente novamente.")
-      throw error
-    }).then(() => {
-      this.getCarrinho()
-    })
+    this.carrinhosService.removerItem(produto_id, true)
+      .then(() => {
+        this.getCarrinho();
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("Erro Encontrado. Tente novamente.");
+      });
   }
 
   getTotal() {
@@ -123,7 +134,6 @@ export class CarrinhoComponent implements OnInit {
     const reqObj = {
       itens,
       cep_destino,
-
     }
 
     this.checkoutService.calcularFrete(reqObj).subscribe({
@@ -199,14 +209,22 @@ export class CarrinhoComponent implements OnInit {
   }
 
   onFinalizar() {
-    const cupons_aplicados = this.cupons_aplicados
-    const frete_selecionado = this.freteSelecionado.value
-    const cep = this.cep_destino.value || ''
-  
-    localStorage.setItem("cep", cep)
-    localStorage.setItem("frete_opt", frete_selecionado.id)
-    localStorage.setItem("cupons", cupons_aplicados.toString())
+    if (!this.freteSelecionado.value) return;
 
-    this.router.navigate(["/checkout"])
+    this.checkoutService.set({
+      frete: {
+        id: this.freteSelecionado.value.id,
+        companyId: this.freteSelecionado.value.company?.id,
+        price: this.valor_frete,
+        prazo: this.freteSelecionado.value.delivery_time
+      },
+      valor_frete: this.valor_frete,
+      valor_desconto: this.valor_desconto,
+      cupons_aplicados: this.cupons_aplicados,
+      cep_destino: this.cep_destino.value
+    });
+
+    this.router.navigate(['/checkout']);
   }
+
 }

@@ -69,14 +69,13 @@ export class CadastroComponent {
       cpf: ['', Validators.required],
       telefone: ['', Validators.required],
       dataNascimento: [''],
-      cep: [''],
-      rua: [''],
-      numero: [''],
+      cep: ['', Validators.required],
+      rua: ['', Validators.required],
+      numero: ['', Validators.required],
       complemento: [''],
-      bairro: [''],
-      cidade: [''],
-      estado: [''],
-      nomeEndereco: ['']
+      bairro: ['', Validators.required],
+      cidade: ['', Validators.required],
+      estado: ['', Validators.required],
     }, { validator: this.pwdConfirming('password', 'confirmPassword') })
   }
 
@@ -100,16 +99,13 @@ export class CadastroComponent {
       cpf: formData.cpf,
       telefone: formData.telefone,
       dataNascimento: formData.dataNascimento,
-      endereco: {
-        cep: formData.cep,
-        rua: formData.rua,
-        numero: formData.numero,
-        complemento: formData.complemento,
-        bairro: formData.bairro,
-        cidade: formData.cidade,
-        estado: formData.estado,
-        nomeEndereco: formData.nomeEndereco
-      }
+      cep: formData.cep,
+      rua: formData.rua,
+      numero: formData.numero,
+      complemento: formData.complemento,
+      bairro: formData.bairro,
+      cidade: formData.cidade,
+      estado: formData.estado
     };
 
     this.usersService.cadastroCliente(reqObj).subscribe({

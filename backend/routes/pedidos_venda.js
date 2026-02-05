@@ -1,36 +1,9 @@
 const router = require("express").Router()
+const Cliente = require("../models/cliente")
+const Pagamento = require("../models/pagamento")
 const Pedido_Venda = require('../models/pedido_venda')
-
-router.post("/novoPedido", async (req, res) => {
-    try {
-        const {
-            cliente_id,
-            endereco_entrega_id,
-            cupom_id,
-            status,
-            forma_pagamento,
-            valor_total,
-            desconto_total,
-            frete
-        } = req.body
-
-        const pedido = await Pedido_Venda.create({
-            cliente_id,
-            endereco_entrega_id,
-            cupom_id,
-            status: status || "Pendente",
-            forma_pagamento,
-            valor_total,
-            desconto_total,
-            frete
-        })
-
-        res.json({ success: true, pedido })
-    } catch (error) {
-        console.error(error)
-        res.status(400).json({ error: error.message })
-    }
-})
+const Pedido_Venda_Item = require("../models/pedido_venda_item")
+const Produto = require("../models/produto")
 
 router.get("/getPedidos", async (req, res) => {
     try {
@@ -46,7 +19,37 @@ router.get("/getPedidos", async (req, res) => {
 
 router.get("/getPedido/:id", async (req, res) => {
     try {
-        const pedido = await Pedido_Venda.findByPk(req.params.id)
+        const pedido = await Pedido_Venda.findByPk(req.params.id, {
+            include: [
+                { model: Cliente },
+                {
+                    model: Pedido_Venda_Item,
+                    include: [
+                        { model: Produto, as: "Produto" }
+                    ]
+                },
+                {
+                    model: Pagamento,
+                    attributes: [
+                        "id",
+                        "pedido_venda_id",
+                        "charge_id",
+                        "nsu",
+                        "tipo_pagamento",
+                        "valor",
+                        "status",
+                        "adquirente",
+                        "token_pix",
+                        "bandeira",
+                        "autorizacao",
+                        "parcelas",
+                        "tipo_parcelamento",
+                        "transaction_id",
+                        "data_transacao",
+                    ]
+                }
+            ]
+        })
 
         if (!pedido) {
             return res.status(404).json({ success: false, message: "Pedido não encontrado" })

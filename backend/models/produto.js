@@ -19,11 +19,12 @@ const Produto = database.define("Produto", {
     },
     imgPath: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     cod_produto: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
+        unique: true
     },
     modelo: {
         type: DataTypes.STRING,
@@ -49,18 +50,18 @@ const Produto = database.define("Produto", {
         type: DataTypes.FLOAT,
         allowNull: false
     },
-    ncm: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    cfop: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    cest: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
+    // ncm: {
+    //     type: DataTypes.STRING,
+    //     allowNull: false
+    // },
+    // cfop: {
+    //     type: DataTypes.STRING,
+    //     allowNull: false
+    // },
+    // cest: {
+    //     type: DataTypes.STRING,
+    //     allowNull: false
+    // },
     peso: {
         type: DataTypes.DECIMAL(10, 3),
         allowNull: false

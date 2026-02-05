@@ -171,22 +171,22 @@
 .categorias {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    text-align: center;
     justify-content: space-around;
-    height: 80px;
-    gap: 20px;
+    min-height: 80px;
 }
 
 .categoria {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-inline: 32px;
-    height: 100%;
+    padding-inline: 16px;
+    min-height: 100%;
     cursor: pointer;
     font-weight: 500;
     color: #474747;
     transition: 0.2s;
+    font-size: 12px;
 
     &:hover {
         color: #161616;
@@ -224,7 +224,8 @@
     display: flex;
     border-left: 2px solid #666666;
     padding: 6px 18px;
-    font-size: 16px;
+    font-size: 12px;
+    font-weight: 500;
     color: #474747;
     cursor: pointer;
     transition: color 0.2s;

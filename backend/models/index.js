@@ -1,5 +1,3 @@
-const Endereco = require('./endereco');
-
 async function defineModels() {
 
     const User = require('./user');
@@ -10,6 +8,9 @@ async function defineModels() {
     const Item_Carrinho = require('./item_carrinho');
     const Cupom = require('./cupom')
     const Cliente = require('./cliente');
+    const Pedido_Venda = require("./pedido_venda")
+    const Pagamento = require("./pagamento")
+    const Pedido_Venda_Item = require("./pedido_venda_item")
 
     // Subcategoria 1:n Produto
     Categoria.hasMany(Produto, {
@@ -80,14 +81,26 @@ async function defineModels() {
         as: 'User'
     });
 
-    Cliente.hasMany(Endereco, {
-        foreignKey: 'cliente_id',
-        as: 'Enderecos'
+    // Pedido -> Itens
+    Pedido_Venda.hasMany(Pedido_Venda_Item, { foreignKey: "pedido_venda_id" });
+    Pedido_Venda_Item.belongsTo(Pedido_Venda, { foreignKey: "pedido_venda_id" });
+
+    // Pedido -> Pagamentos
+    Pedido_Venda.hasMany(Pagamento, { foreignKey: "pedido_venda_id" });
+    Pagamento.belongsTo(Pedido_Venda, { foreignKey: "pedido_venda_id" });
+
+    // Pedido_Venda_Item -> Produto
+    Pedido_Venda_Item.belongsTo(Produto, {
+        foreignKey: "produto_id",
+        as: "Produto"
     });
-    Endereco.belongsTo(Cliente, {
-        foreignKey: 'cliente_id',
-        as: 'Cliente'
+    Produto.hasMany(Pedido_Venda_Item, {
+        foreignKey: "produto_id",
+        as: "ItensPedido"
     });
+
+    Cliente.hasMany(Pedido_Venda, { foreignKey: "cliente_id" })
+    Pedido_Venda.belongsTo(Cliente, { foreignKey: "cliente_id" })
 }
 
 module.exports = { defineModels };

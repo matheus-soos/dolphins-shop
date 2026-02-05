@@ -36,7 +36,7 @@ export class ProdutosComponent implements OnInit {
   ) {}
 
   selection = new SelectionModel(true)
-  displayedColumns: string[] = ["select", "nome", "categoria", "subcategoria", "valor_custo", "valor_venda", "ncm", "cfop", "status"]
+  displayedColumns: string[] = ["select", "nome", "categoria", "subcategoria", "valor_custo", "valor_venda", "status"]
   dataSource = new MatTableDataSource(undefined)
   searchText: string = ''
   produtos: any[] = []

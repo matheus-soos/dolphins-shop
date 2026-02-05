@@ -7,6 +7,10 @@ const Pagamento = database.define('Pagamento', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
+    pedido_venda_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+    },
     charge_id: {
         type: DataTypes.STRING,
         allowNull: false

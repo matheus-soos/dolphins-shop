@@ -77,9 +77,9 @@ export class NovoProdutoComponent implements OnInit {
       subcategoria: [{ value: '', disabled: true }, Validators.required],
       valor_custo: [''],
       valor_venda: ['', Validators.required],
-      ncm: ['', Validators.required],
-      cest: [''],
-      cfop: ['', Validators.required],
+      // ncm: ['', Validators.required],
+      // cest: [''],
+      // cfop: ['', Validators.required],
       peso: ['', Validators.required],
       altura: ['', Validators.required],
       largura: ['', Validators.required],
@@ -122,9 +122,9 @@ export class NovoProdutoComponent implements OnInit {
       formData.append('subcategoria_id', this.formProduto.controls['subcategoria'].value)
       formData.append('valor_custo', this.formProduto.controls['valor_custo'].value)
       formData.append('valor_venda', this.formProduto.controls['valor_venda'].value)
-      formData.append('ncm', this.ncmValue)
-      formData.append('cfop', this.cfopValue)
-      formData.append('cest', this.formProduto.controls['cest'].value)
+      // formData.append('ncm', this.ncmValue)
+      // formData.append('cfop', this.cfopValue)
+      // formData.append('cest', this.formProduto.controls['cest'].value)
       formData.append('peso', this.formProduto.controls['peso'].value)
       formData.append('altura', this.formProduto.controls['altura'].value)
       formData.append('largura', this.formProduto.controls['largura'].value)
