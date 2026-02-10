@@ -13,6 +13,9 @@ import { CheckoutService } from '../../services/checkout.service';
 import { CuponsService } from '../../services/cupons.service';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
+import { AuthService } from '../../services/auth.service';
+import { LoginComponent } from '../login/login.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-carrinho',
@@ -40,7 +43,9 @@ export class CarrinhoComponent implements OnInit {
     private produtosService: ProdutosService,
     private checkoutService: CheckoutService,
     private cuponsService: CuponsService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService,
+    private dialog: MatDialog
   ) { }
 
   carrinho: any
@@ -223,6 +228,25 @@ export class CarrinhoComponent implements OnInit {
       cupons_aplicados: this.cupons_aplicados,
       cep_destino: this.cep_destino.value
     });
+
+    console.log(this.authService.isLoggedOut())
+
+    if (this.authService.isLoggedOut()) {
+      const dialogRef = this.dialog.open(LoginComponent, {
+        height: '500px',
+        width: '800px',
+        maxWidth: '800px',
+        autoFocus: false
+      })
+
+      dialogRef.afterClosed().subscribe(result => {
+        if(result) {
+          this.router.navigate(['/checkout']);
+        }
+      })
+
+      return
+    }
 
     this.router.navigate(['/checkout']);
   }

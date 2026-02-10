@@ -50,7 +50,7 @@ export class LoginComponent implements OnInit {
       next: (response) => {
         console.log(response);
         this.authService.setLocalStorage(response)
-        this.dialogRef.close()
+        this.dialogRef.close(true)
       },
       error: (err) => {
         console.error(err);

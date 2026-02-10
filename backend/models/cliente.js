@@ -32,7 +32,7 @@ const Cliente = database.define("Cliente", {
         type: DataTypes.STRING,
         allowNull: false
     },
-    rua: {
+    logradouro: {
         type: DataTypes.STRING,
         allowNull: false
     },

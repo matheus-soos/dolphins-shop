@@ -15,7 +15,7 @@ router.post("/importarProdutos", async (req, res) => {
 });
 
 function limparTexto(valor) {
-    if (!valor) return null;
+    if (!valor) return "";
 
     return valor
         .toString()
@@ -24,13 +24,15 @@ function limparTexto(valor) {
 }
 
 async function mapProduct(p) {
-    const subcategoria = await Subcategoria.findOne({
-        where: { cod_categoria: p.Categorias[0]?.Codigo }
-    })
+    let subcategoria
 
-    if(!subcategoria) return null
+    if (p.Categorias && p.Categorias?.length > 0) {
+        subcategoria = await Subcategoria.findOne({
+            where: { cod_categoria: p.Categorias[0]?.Codigo }
+        })
+    }
 
-    return {
+    const produto = {
         cod_produto: limparTexto(p.Codigo),
         nome: limparTexto(p.Descricao),
         descricao: limparTexto(p.Titulo || p.Descricao),
@@ -41,18 +43,31 @@ async function mapProduct(p) {
         altura: Number(p.Profundidade) || 0,
         peso: Number(p.Cubagem) || 0,
         saldo: Number(p.SaldoDisponivel ?? p.SaldoEstoque) || 0,
-        ncm: "00000000",
-        cfop: "5102",
-        cest: "0000000",
-        categoria_id: subcategoria.categoria_id,
-        subcategoria_id: subcategoria.id,
+        categoria_id: subcategoria?.categoria_id || null,
+        subcategoria_id: subcategoria?.id || null,
         status: "Disponível",
     };
+
+    if (!(produto.cod_produto &&
+        produto.nome &&
+        produto.descricao &&
+        produto.status &&
+        produto.valor_venda != null &&
+        produto.peso != null &&
+        produto.altura != null &&
+        produto.largura != null &&
+        produto.comprimento != null &&
+        produto.saldo != null
+    )) {
+        return null;
+    }
+
+    return produto
 }
 
 async function importarProdutos() {
     const baseUrl = `${process.env.REST_URL}/api/Plenservice/v1/ProductService`;
-    const authString = `${process.env.PROTHEUS_USER}:${process.env.PROTHEUS_PASSWORD}`;
+    const authString = `${process.env.REST_USER}:${process.env.REST_PASS}`;
     const Authorization = "Basic " + Buffer.from(authString).toString("base64");
     const pageSize = 200;
 
@@ -60,28 +75,31 @@ async function importarProdutos() {
     let totalPages = 1;
 
     do {
-        const response = await axios.get(baseUrl, {
-            params: {
-                Page: page,
-                PageSize: pageSize,
-            },
-            headers: {
-                Authorization,
-                "Content-Type": "application/json",
-                tenantId: "12,44",
-                "Accept": "*/*"
-            },
-        });
+        try {
+            const response = await axios.get(baseUrl, {
+                params: {
+                    Page: page,
+                    PageSize: pageSize,
+                },
+                headers: {
+                    Authorization,
+                    "Content-Type": "application/json",
+                    tenantId: "12,44",
+                    "Accept": "*/*"
+                },
+            });
 
-        const { Produtos, TotalPages } = response.data;
+            const { Produtos, TotalPages } = response.data;
 
-        for (const pageProdutos of Produtos) {
-            const produtosFormatados = Produtos.map(mapProduct);
+            const produtos = await Promise.all(Produtos.map(mapProduct));
+            const produtosFormat = produtos.filter(p => p !== null);
 
-            await Produto.bulkCreate(produtosFormatados, {
+            await Produto.bulkCreate(produtosFormat, {
                 updateOnDuplicate: [
                     "nome",
                     "descricao",
+                    "categoria_id",
+                    "subcategoria_id",
                     "valor_venda",
                     "valor_custo",
                     "comprimento",
@@ -92,15 +110,18 @@ async function importarProdutos() {
                     "status"
                 ]
             });
+
+            console.log(Produtos.length, page);
+
+            totalPages = TotalPages;
+            page++;
+
+            // Evita sobrecarregar o Protheus
+            await new Promise((r) => setTimeout(r, 1000));
+        } catch (error) {
+            console.error(error)
+            page++;
         }
-
-        console.log(Produtos.length, page);
-
-        totalPages = TotalPages;
-        page++;
-
-        // Evita sobrecarregar o Protheus
-        await new Promise((r) => setTimeout(r, 1000));
     } while (page <= totalPages);
 
     console.log("Importação finalizada");
@@ -189,36 +210,40 @@ router.post("/importarCategorias", async (req, res) => {
         const { Categorias } = response.data;
 
         for (const c of Categorias) {
-            const subcategorias = c.Children
-            const nome = limparTexto(c.Descricao)
+            const subcategorias = c.Children || [];
+            const nome = limparTexto(c.Descricao);
+            const codCategoria = limparTexto(c.Codigo);
 
-            const categoria = await Categoria.create({
-                cod_categoria: limparTexto(c.Codigo),
+            const [categoria, created] = await Categoria.upsert({
+                cod_categoria: codCategoria,
                 nome: nome,
                 slug: slugify(nome, { lower: true, strict: true }),
                 status: "Ativo"
-            })
+            }, {
+                returning: true
+            });
 
             if (subcategorias.length > 0) {
                 await Subcategoria.bulkCreate(subcategorias.map(subc => {
-                    const nome = limparTexto(subc.Descricao)
+                    const nomeSub = limparTexto(subc.Descricao);
+                    const codSub = limparTexto(subc.Codigo);
 
                     return {
-                        cod_categoria: limparTexto(subc.Codigo),
+                        cod_categoria: codSub,
                         categoria_id: categoria.id,
-                        nome: nome,
-                        slug: slugify(nome, { lower: true, strict: true }),
+                        nome: nomeSub,
+                        slug: slugify(nomeSub, { lower: true, strict: true }),
                         status: "Ativo"
-                    }
+                    };
                 }), {
                     updateOnDuplicate: [
                         "categoria_id",
                         "nome",
                         "slug",
+                        "status"
                     ]
-                })
+                });
             }
-
         }
 
         res.status(202).json({ message: "Importação Finalizada" });
@@ -292,6 +317,100 @@ function normalizeText(text) {
         .toUpperCase();
 }
 
+function mapPedidoToSalesOrder(pedido) {
+    if (!pedido) {
+        throw new Error("Pedido não encontrado no response.");
+    }
+
+    const formatDate = (date) =>
+        new Date(date).toISOString().slice(0, 10).replace(/-/g, "");
+
+    const getLogradouro = (logradouro = "", numero = "") => {
+        logradouro = logradouro.trim();
+        numero = (numero || "").trim();
+
+        if (!numero) {
+            return logradouro;
+        }
+
+        // Trata S/N
+        if (numero.toUpperCase() === "S/N" && !logradouro.includes("S/N")) {
+            return `${logradouro} S/N`;
+        }
+
+        // Verifica se o número já está no logradouro
+        const regex = new RegExp(`\\b${numero}\\b`);
+
+        if (regex.test(logradouro)) {
+            return logradouro;
+        }
+
+        return `${logradouro} ${numero}`;
+    };
+
+    const cliente = pedido.Cliente || {};
+
+    return {
+        SalesOrder: {
+            numeroPedido: pedido.numeroPedido,
+            dataPedido: formatDate(pedido.createdAt),
+            valorTotal: Number(pedido.valor_total) || 0,
+            percDesc: 0,
+            frete: Number(pedido.frete) || 0,
+            cliente: {
+                nome: cliente.nome,
+                cpfCnpj: cliente.cpf,
+                email: cliente.email,
+                telefone: cliente.telefone,
+                logradouro: getLogradouro(
+                    normalizeText(cliente.logradouro),
+                    cliente.numero,
+                ),
+                complemento: normalizeText(cliente.complemento) || "",
+                bairro: normalizeText(cliente.bairro),
+                cidade: normalizeText(cliente.cidade),
+                estado: normalizeText(cliente.estado),
+                cep: cliente.cep,
+                GrupoVenda: "000003"
+            },
+
+            entrega: {
+                logradouro: getLogradouro(
+                    normalizeText(cliente.logradouro),
+                    cliente.numero,
+                ),
+                complemento: normalizeText(cliente.complemento) || "",
+                bairro: normalizeText(cliente.bairro),
+                cidade: normalizeText(cliente.cidade),
+                estado: normalizeText(cliente.estado),
+                cep: cliente.cep,
+                contato: cliente.nome
+            },
+
+            pagamentos: (pedido.Pagamentos || []).map((pagamento, index) => ({
+                parcela: index + 1,
+                formaPagamento: pagamento.tipo_pagamento || pedido.forma_pagamento || "",
+                cupomDesconto: "",
+                bandeira: pagamento.bandeira || "",
+                valor: Number(pagamento.valor) || 0,
+                dataPagamento: formatDate(pagamento.data_transacao),
+                numeroCartao: "",
+                NSU: pagamento.nsu || ""
+            })),
+
+            itens: (pedido.Pedido_Venda_Items).map((item, index) => ({
+                sequencia: index + 1,
+                codigoProduto: item.Produto.cod_produto,
+                descricaoProduto: item.Produto.nome,
+                quantidade: Number(item.quantidade) || 0,
+                precoUnitario: Number(item.valor_unitario) || 0,
+                valorTotal: Number(item.valor_total) || 0
+            }))
+        }
+    };
+}
+
+
 // async function salesOrder() {
 //     const baseUrl = `${process.env.REST_URL}/api/Plenservice/v1/ProductService/SalesOrder/`;
 //     const authString = `${process.env.PROTHEUS_USER}:${process.env.PROTHEUS_PASSWORD}`;
@@ -309,33 +428,6 @@ function normalizeText(text) {
 //     if (!propostas || propostas.length === 0) {
 //         return;
 //     }
-
-//     const formatDate = (date) =>
-//         new Date(date).toISOString().slice(0, 10).replace(/-/g, "");
-
-//     const getLogradouro = (logradouro = "", numero = "") => {
-//         logradouro = logradouro.trim();
-//         numero = (numero || "").trim();
-
-//         if (!numero) {
-//             return logradouro;
-//         }
-
-//         // Trata S/N
-//         if (numero.toUpperCase() === "S/N" && !logradouro.includes("S/N")) {
-//             return `${logradouro} S/N`;
-//         }
-
-//         // Verifica se o número já está no logradouro
-//         const regex = new RegExp(`\\b${numero}\\b`);
-
-//         if (regex.test(logradouro)) {
-//             return logradouro;
-//         }
-
-//         return `${logradouro} ${numero}`;
-//     };
-
 
 //     for (const proposta of propostas) {
 //         try {

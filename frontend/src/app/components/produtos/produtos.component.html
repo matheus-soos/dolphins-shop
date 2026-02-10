@@ -20,12 +20,12 @@
                     Editar Produto
                 </button>
 
-                <!-- <button mat-menu-item [disabled]="this.selection.selected.length != 1" (click)="controleEstoque()">
-                <mat-icon>inventory</mat-icon>
-                Controle de Estoque
-            </button>
+                <button mat-menu-item (click)="onSincronizar()">
+                    <mat-icon>sync</mat-icon>
+                    Sincronizar Produtos
+                </button>
 
-            <button mat-menu-item (click)="movimentacoes()">
+                <!-- <button mat-menu-item (click)="movimentacoes()">
                 <mat-icon>sync_alt</mat-icon>
                 Movimentação Múltipla
             </button>

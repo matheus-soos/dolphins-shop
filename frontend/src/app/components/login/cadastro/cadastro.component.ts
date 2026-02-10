@@ -70,7 +70,7 @@ export class CadastroComponent {
       telefone: ['', Validators.required],
       dataNascimento: [''],
       cep: ['', Validators.required],
-      rua: ['', Validators.required],
+      logradouro: ['', Validators.required],
       numero: ['', Validators.required],
       complemento: [''],
       bairro: ['', Validators.required],
@@ -100,7 +100,7 @@ export class CadastroComponent {
       telefone: formData.telefone,
       dataNascimento: formData.dataNascimento,
       cep: formData.cep,
-      rua: formData.rua,
+      logradouro: formData.logradouro,
       numero: formData.numero,
       complemento: formData.complemento,
       bairro: formData.bairro,
@@ -137,7 +137,7 @@ export class CadastroComponent {
     if (cep?.length === 8) {
       this.http.get(`https://viacep.com.br/ws/${cep}/json`).subscribe((res: any) => {
         this.formUser.patchValue({
-          rua: res.logradouro,
+          logradouro: res.logradouro,
           bairro: res.bairro,
           cidade: res.localidade,
           estado: res.uf

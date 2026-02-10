@@ -116,7 +116,7 @@ router.get("/getUser/:id", async (req, res, next) => {
 
 router.post('/cadastroCliente', async (req, res, next) => {
     try {
-        const { email, password, nome, cpf, telefone, dataNascimento, cep, rua, numero, complemento, bairro, cidade, estado, } = req.body
+        const { email, password, nome, cpf, telefone, dataNascimento, cep, logradouro, numero, complemento, bairro, cidade, estado, } = req.body
 
         if (!(email && password)) {
             return res.status(400).send("Preencha os campos obrigatórios")
@@ -145,7 +145,7 @@ router.post('/cadastroCliente', async (req, res, next) => {
             telefone: telefone,
             data_nascimento: new Date(dataNascimento),
             cep,
-            rua,
+            logradouro,
             numero,
             complemento,
             bairro,

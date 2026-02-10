@@ -34,7 +34,7 @@ async function gerarPix({ token, amount }) {
             transactions: [
                 {
                     //   amount: amount.toFixed(2)
-                    amount: "100"
+                    amount: "10"
                 }
             ],
             source: 8

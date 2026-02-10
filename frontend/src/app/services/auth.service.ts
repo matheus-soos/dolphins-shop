@@ -15,9 +15,10 @@ export class AuthService {
     localStorage.setItem('token', responseObj.token.token);
     localStorage.setItem("expires_at", JSON.stringify(expiresAt.valueOf()));
     localStorage.setItem('user_id', responseObj.user.id)
+    localStorage.setItem('email', responseObj.user.email)
 
-    if(responseObj.user.isAdmin) {
-        localStorage.setItem('isAdmin', 'true')
+    if (responseObj.user.isAdmin) {
+      localStorage.setItem('isAdmin', 'true')
     }
   }
 

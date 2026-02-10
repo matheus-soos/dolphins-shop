@@ -27,41 +27,31 @@ export class PagamentoPixComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const chargePix = this.checkoutService.chargePix
+    this.chargeId = this.route.snapshot.paramMap.get('id')!;
 
-    if (!chargePix) {
-      this.chargeId = this.route.snapshot.paramMap.get('id')!;
-      this.carregarPix();
+    this.carregarPix();
 
-      // faz polling a cada 10 segundos
-      this.pollingSub = interval(10000)
-        .pipe(switchMap(() => this.checkoutService.getPagamento(this.chargeId)))
-        .subscribe(resp => {
-          const tx = resp.charge.transactions[0];
-          this.pix.transactionStatus = tx.transactionStatus;
+    this.pollingSub = interval(10000)
+      .pipe(switchMap(() => this.checkoutService.getPagamento(this.chargeId)))
+      .subscribe(resp => {
+        const tx = resp.charge.transactions[0];
 
-          if (tx.transactionStatus === 'Paid') {
-            this.statusMsg = '✅ Pagamento recebido com sucesso!';
-            this.pararPolling();
-          }
-        });
-    }
+        this.pix.status = tx.transactionStatus;
 
-    else {
-      const transaction = chargePix.transactions[0]
-      this.pix = {
-        valor: transaction.amount,
-        status: transaction.transactionStatus,
-        qrCodeBase64: transaction.qrCodeBase64,
-        qrCode: transaction.qrCode
-      }
-    }
+        console.log("Polling...", tx.transactionStatus);
+
+        if (tx.transactionStatus === 'Paid') {
+          this.statusMsg = '✅ Pagamento recebido com sucesso!';
+          this.pararPolling();
+        }
+      });
   }
 
   carregarPix() {
     this.checkoutService.getPagamento(this.chargeId).subscribe(resp => {
       const transaction = resp.charge.transactions[0];
-      const pagamento = resp.pagamento
+      const pagamento = resp.pagamento;
+
       this.pix = {
         valor: transaction.amount,
         status: transaction.transactionStatus,

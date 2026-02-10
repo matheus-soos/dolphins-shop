@@ -10,6 +10,7 @@ import slugify from 'slugify';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { UsersService } from './services/users.service';
 import { CommonModule } from '@angular/common';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -32,13 +33,18 @@ export class AppComponent implements OnInit {
     private carrinhosService: CarrinhosService,
     private categoriasService: CategoriasService,
     private router: Router,
-    public usersService: UsersService
-  ) { }
+    public usersService: UsersService,
+    public authService: AuthService
+  ) {
+    const email = localStorage.getItem("email")
+    this.user = email || ""
+  }
 
   categorias: any[] = []
   categoriaSelecionada: any
   textoBusca = new FormControl('')
   qtdCarrinho: number = 0;
+  user: string = ""
 
   ngOnInit(): void {
     this.getCategorias().subscribe((response) => {

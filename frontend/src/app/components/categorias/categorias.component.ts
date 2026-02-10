@@ -13,6 +13,7 @@ import { CategoriasService } from '../../services/categorias.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NovaCategoriaComponent } from './nova-categoria/nova-categoria.component';
 import { SubcategoriasComponent } from './subcategorias/subcategorias.component';
+import { ProtheusService } from '../../services/protheus.service';
 
 @Component({
   selector: 'app-categorias',
@@ -34,13 +35,14 @@ import { SubcategoriasComponent } from './subcategorias/subcategorias.component'
 export class CategoriasComponent implements OnInit {
   constructor(
     private categoriasService: CategoriasService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private protheusService: ProtheusService
   ) { }
 
   selection = new SelectionModel<any>(false)
   searchText: string = ''
   dataSource = new MatTableDataSource(undefined)
-  displayedColumns: string[] = ["select", "nome", "status"]
+  displayedColumns: string[] = ["select", "codigo", "nome", "status"]
 
   ngOnInit(): void {
     this.getCategorias()
@@ -89,6 +91,17 @@ export class CategoriasComponent implements OnInit {
         data: { categoria_id: categoria.id }
       })
     }
+  }
+
+  onSincronizar() {
+    this.protheusService.sincronizarCategorias().subscribe({
+      next: (response) => {
+        console.log(response)
+      },
+      error: (err) => {
+        console.error(err)
+      }
+    })
   }
 
   applyFilter(event: Event) { }

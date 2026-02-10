@@ -7,6 +7,11 @@ const Pedido_Venda = database.define("Pedido_Venda", {
         autoIncrement: true,
         primaryKey: true
     },
+    numero_pedido: {
+        type: DataTypes.STRING(6),
+        allowNull: false,
+        unique: true
+    },
     cliente_id: {
         type: Sequelize.INTEGER,
         allowNull: false
@@ -39,7 +44,22 @@ const Pedido_Venda = database.define("Pedido_Venda", {
         defaultValue: 0
     }
 }, {
-    tableName: "Pedidos_Venda"
+    tableName: "Pedidos_Venda",
+    hooks: {
+        beforeValidate: async (pedido) => {
+
+            // se já veio preenchido, não mexe
+            if (pedido.numero_pedido) return;
+
+            const result = await database.query(
+                `SELECT nextval('pedidos_venda_numero_seq') as numero`,
+                { type: Sequelize.QueryTypes.SELECT }
+            );
+
+            pedido.numero_pedido = String(result[0].numero).padStart(6, "0");
+        }
+    }
+
 });
 
 module.exports = Pedido_Venda;

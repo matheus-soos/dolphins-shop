@@ -10,6 +10,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { SearchFilterPipe } from '../../pipes/search-filter.pipe';
 import { RouterModule } from '@angular/router';
 import { ProdutosService } from '../../services/produtos.service';
+import { ProtheusService } from '../../services/protheus.service';
 
 @Component({
   selector: 'app-produtos',
@@ -32,8 +33,9 @@ import { ProdutosService } from '../../services/produtos.service';
 export class ProdutosComponent implements OnInit {
 
   constructor(
-    private produtosService: ProdutosService
-  ) {}
+    private produtosService: ProdutosService,
+    private protheusService: ProtheusService
+  ) { }
 
   selection = new SelectionModel(true)
   displayedColumns: string[] = ["select", "nome", "categoria", "subcategoria", "valor_custo", "valor_venda", "status"]
@@ -59,5 +61,16 @@ export class ProdutosComponent implements OnInit {
 
   }
 
-  applyFilter(event: Event) {}
+  onSincronizar() {
+    this.protheusService.sincronizarProdutos().subscribe({
+      next: (response) => {
+        console.log(response)
+      },
+      error: (err) => {
+        console.error(err)
+      }
+    })
+  }
+
+  applyFilter(event: Event) { }
 }

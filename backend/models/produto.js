@@ -10,12 +10,12 @@ const Produto = database.define("Produto", {
     categoria_id: {
         type: Sequelize.INTEGER,
         foreignKey: true,
-        allowNull: false
+        allowNull: true
     },
     subcategoria_id: {
         type: Sequelize.INTEGER,
         foreignKey: true,
-        allowNull: false
+        allowNull: true
     },
     imgPath: {
         type: DataTypes.STRING,
