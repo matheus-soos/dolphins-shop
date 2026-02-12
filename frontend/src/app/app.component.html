@@ -39,10 +39,10 @@
 
       <div class="actions">
         @if (authService.isLoggedIn()) {
-          <p>{{user}}</p>
+        <p>{{user}}</p>
         }
         @else {
-          <p (click)="openLogin()">Sign In</p>
+        <p (click)="openLogin()">Sign In</p>
         }
 
         <mat-icon>favorite</mat-icon>
@@ -55,8 +55,12 @@
 
 <section>
   <div class="categorias-bar">
+    <button class="btn-scroll" (click)="scrollCategorias(-500)">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
     <div class="wrapper" style="max-width: 80%;">
-      <div class="categorias">
+      <div class="categorias" #categoriasScroll>
         @for (categoria of categorias; track $index) {
         <div class="categoria" (mouseenter)="categoriaExpand($event); categoriaSelecionada = categoria"
           (mouseleave)="categoriaExpand($event)">
@@ -67,6 +71,10 @@
         }
       </div>
     </div>
+
+    <button class="btn-scroll" (click)="scrollCategorias(500)">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
   </div>
 
   <div class="categoria-expanded" id="categoria-expanded" (mouseenter)="categoriaExpand($event)"

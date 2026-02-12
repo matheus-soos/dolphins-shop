@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -28,6 +28,8 @@ import { AuthService } from './services/auth.service';
 })
 
 export class AppComponent implements OnInit {
+  @ViewChild('categoriasScroll') categoriasScroll!: ElementRef;
+
   constructor(
     private dialog: MatDialog,
     private carrinhosService: CarrinhosService,
@@ -63,6 +65,13 @@ export class AppComponent implements OnInit {
       maxWidth: '800px',
       autoFocus: false
     })
+  }
+
+  scrollCategorias(valor: number) {
+    this.categoriasScroll.nativeElement.scrollBy({
+      left: valor,
+      behavior: 'smooth'
+    });
   }
 
   categoriaExpand($event: Event) {
