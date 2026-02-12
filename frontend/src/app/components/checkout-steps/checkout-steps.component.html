@@ -1,0 +1,37 @@
+<div class="checkout-steps">
+
+  <div class="step" [class.active]="currentStep === 1" [class.done]="currentStep > 1">
+    <mat-icon class="icon">
+      shopping_cart
+    </mat-icon>
+    <span class="label">Carrinho</span>
+  </div>
+
+  <div class="line" [class.done]="currentStep > 1"></div>
+
+  <div class="step" [class.active]="currentStep === 2" [class.done]="currentStep > 2">
+    <mat-icon class="icon">
+      local_shipping
+    </mat-icon>
+    <span class="label">Entrega</span>
+  </div>
+
+  <div class="line" [class.done]="currentStep > 2"></div>
+
+  <div class="step" [class.active]="currentStep === 3" [class.done]="currentStep > 3">
+    <mat-icon class="icon">
+      fact_check
+    </mat-icon>
+    <span class="label">Checkout</span>
+  </div>
+
+  <div class="line" [class.done]="currentStep > 3"></div>
+
+  <div class="step" [class.active]="currentStep === 4" [class.done]="currentStep > 4">
+    <mat-icon class="icon">
+      payments
+    </mat-icon>
+    <span class="label">Pagamento</span>
+  </div>
+
+</div>

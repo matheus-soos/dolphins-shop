@@ -13,6 +13,7 @@ import { ProdutoViewComponent } from './components/visualizar-produtos/produto-v
 import { CadastroComponent } from './components/login/cadastro/cadastro.component';
 import { PedidosComponent } from './components/pedidos/pedidos.component';
 import { PagamentoPixComponent } from './components/checkout/pagamento-pix/pagamento-pix.component';
+import { EntregaComponent } from './components/entrega/entrega.component';
 
 export const routes: Routes = [
     { path: "", pathMatch: "full", component: InicioComponent },
@@ -20,6 +21,7 @@ export const routes: Routes = [
     { path: "buscar/categoria/:categoria/:subcategoria", component: VisualizarProdutosComponent },
     { path: "buscar/produto/:id", component: ProdutoViewComponent },
     { path: "carrinho", component: CarrinhoComponent },
+    { path: "entrega", component: EntregaComponent },
     { path: "checkout", component: CheckoutComponent },
     { path: "checkout/pagamento/pix/:id", component: PagamentoPixComponent },
     { path: "cadastro", component: CadastroComponent },

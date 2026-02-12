@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { NgxMaskDirective } from 'ngx-mask';
 import { AuthService } from '../../services/auth.service';
 import { UsersService } from '../../services/users.service';
+import { CheckoutStepsComponent } from '../checkout-steps/checkout-steps.component';
 
 @Component({
   selector: 'app-entrega',
@@ -23,7 +24,8 @@ import { UsersService } from '../../services/users.service';
     MatIconModule,
     NgxMaskDirective,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    CheckoutStepsComponent
   ],
   templateUrl: './entrega.component.html',
   styleUrl: './entrega.component.scss',

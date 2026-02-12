@@ -4,13 +4,15 @@ import { CheckoutService } from '../../../services/checkout.service';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
+import { CheckoutStepsComponent } from '../../checkout-steps/checkout-steps.component';
 
 @Component({
   selector: 'app-pagamento-pix',
   templateUrl: './pagamento-pix.component.html',
   styleUrls: ['./pagamento-pix.component.scss'],
   imports: [
-    CommonModule
+    CommonModule,
+    CheckoutStepsComponent
   ],
   standalone: true
 })

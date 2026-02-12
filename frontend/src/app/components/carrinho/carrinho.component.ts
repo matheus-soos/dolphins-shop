@@ -16,6 +16,7 @@ import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../../services/auth.service';
 import { LoginComponent } from '../login/login.component';
 import { MatDialog } from '@angular/material/dialog';
+import { CheckoutStepsComponent } from '../checkout-steps/checkout-steps.component';
 
 @Component({
   selector: 'app-carrinho',
@@ -31,7 +32,8 @@ import { MatDialog } from '@angular/material/dialog';
     ReactiveFormsModule,
     FormsModule,
     MatRadioModule,
-    MatCardModule
+    MatCardModule,
+    CheckoutStepsComponent
   ],
   templateUrl: './carrinho.component.html',
   styleUrl: './carrinho.component.scss',
@@ -61,6 +63,16 @@ export class CarrinhoComponent implements OnInit {
 
   ngOnInit(): void {
     this.getCarrinho()
+
+    const checkout_state = sessionStorage.getItem("checkout_state")
+
+    if (checkout_state) {
+      const checkout_json = JSON.parse(checkout_state)
+      const cep = checkout_json.cep_destino
+      if (cep) {
+        this.cep_destino.setValue(cep)
+      }
+    }
   }
 
   getCarrinho() {
@@ -214,7 +226,10 @@ export class CarrinhoComponent implements OnInit {
   }
 
   onFinalizar() {
-    if (!this.freteSelecionado.value) return;
+    if (!this.freteSelecionado.value) {
+      this.onCalcularFrete()
+      return
+    };
 
     this.checkoutService.set({
       frete: {
@@ -229,8 +244,6 @@ export class CarrinhoComponent implements OnInit {
       cep_destino: this.cep_destino.value
     });
 
-    console.log(this.authService.isLoggedOut())
-
     if (this.authService.isLoggedOut()) {
       const dialogRef = this.dialog.open(LoginComponent, {
         height: '500px',
@@ -240,7 +253,7 @@ export class CarrinhoComponent implements OnInit {
       })
 
       dialogRef.afterClosed().subscribe(result => {
-        if(result) {
+        if (result) {
           this.router.navigate(['/checkout']);
         }
       })

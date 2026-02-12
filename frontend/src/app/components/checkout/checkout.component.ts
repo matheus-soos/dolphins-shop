@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 import { CheckoutService } from '../../services/checkout.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { CheckoutStepsComponent } from '../checkout-steps/checkout-steps.component';
 
 declare var SafraPayTransparent: any;
 
@@ -28,7 +29,8 @@ declare var SafraPayTransparent: any;
     MatSelectModule,
     CommonModule,
     NgxMaskDirective,
-    RouterModule
+    RouterModule,
+    CheckoutStepsComponent
   ],
   providers: [
     provideNgxMask()

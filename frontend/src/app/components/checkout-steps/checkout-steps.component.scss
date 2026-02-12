@@ -1,0 +1,100 @@
+.checkout-steps {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    padding: 18px 10px;
+    width: 100%;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 90px;
+    opacity: 0.4;
+    transition: 0.2s ease;
+    color: #777;
+
+    .label {
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .icon {
+        font-size: 30px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 2px solid #d0d0d0;
+        background: #fff;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Etapas concluídas (apagadas, mas melhores que futuras) */
+.step.done {
+    opacity: 0.65;
+    color: #444;
+
+    .icon {
+        border-color: #bdbdbd;
+        background: #f5f5f5;
+    }
+}
+
+/* Etapa atual (destacada) */
+.step.active {
+    opacity: 1;
+    color: #111;
+
+    .label {
+        font-weight: 700;
+    }
+
+    .icon {
+        border-color: #111;
+        background: #fff;
+    }
+}
+
+/* Linha */
+.line {
+    flex: 1;
+    height: 2px;
+    max-width: 70px;
+    background: #d0d0d0;
+    border-radius: 10px;
+    opacity: 0.4;
+}
+
+/* Linha quando já passou */
+.line.done {
+    opacity: 0.8;
+    background: #9a9a9a;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .step {
+        min-width: 70px;
+
+        .label {
+            font-size: 11px;
+        }
+
+        .icon {
+            width: 42px;
+            height: 42px;
+            font-size: 26px;
+        }
+    }
+
+    .line {
+        max-width: 40px;
+    }
+}
