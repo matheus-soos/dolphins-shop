@@ -32,6 +32,10 @@ export class UsersService {
     return this.http.post(environment.API_URL + "/users/cadastroCliente", reqObj)
   }
 
+  getCliente(user_id: string) {
+    return this.http.get(environment.API_URL + "/users/getCliente/" + user_id)
+  }
+
   isAdmin() {
     return localStorage.getItem("isAdmin")
   }

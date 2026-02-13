@@ -1,3 +1,4 @@
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule, Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
@@ -12,6 +13,9 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { AuthService } from '../../services/auth.service';
 import { UsersService } from '../../services/users.service';
 import { CheckoutStepsComponent } from '../checkout-steps/checkout-steps.component';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { LoginComponent } from '../login/login.component';
 
 @Component({
   selector: 'app-entrega',
@@ -25,7 +29,8 @@ import { CheckoutStepsComponent } from '../checkout-steps/checkout-steps.compone
     NgxMaskDirective,
     MatDatepickerModule,
     MatNativeDateModule,
-    CheckoutStepsComponent
+    CheckoutStepsComponent,
+    MatCheckboxModule
   ],
   templateUrl: './entrega.component.html',
   styleUrl: './entrega.component.scss',
@@ -37,10 +42,13 @@ export class EntregaComponent {
     private usersService: UsersService,
     private http: HttpClient,
     public location: Location,
-    private authService: AuthService
+    private authService: AuthService,
+    private dialog: MatDialog,
+    private router: Router
   ) { }
 
   formEntrega!: FormGroup
+  cliente: any
 
   createForm() {
     this.formEntrega = this.formBuilder.group({
@@ -56,6 +64,41 @@ export class EntregaComponent {
 
   ngOnInit(): void {
     this.createForm()
+
+    this.getCliente()
+  }
+
+  getCliente() {
+    const user_id = localStorage.getItem("user_id")
+
+    if (!user_id) {
+      const dialogRef = this.dialog.open(LoginComponent, {
+        height: '500px',
+        width: '800px',
+        maxWidth: '800px',
+        autoFocus: false
+      })
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.router.navigate(['/checkout']);
+        }
+      })
+
+      return
+    }
+
+    this.usersService.getCliente(user_id).subscribe({
+      next: (response: any) => {
+        console.log(response)
+        if (response.user) {
+          this.cliente = response.user.Cliente
+        }
+      },
+      error: (err) => {
+        console.error(err)
+      }
+    })
   }
 
   onCepChange() {
@@ -69,6 +112,25 @@ export class EntregaComponent {
           estado: res.uf
         });
       });
+    }
+  }
+
+  async onEnderecoChange(event: any) {
+    const checked = event.checked;
+    if (checked) {
+      const cliente = this.cliente
+
+      this.formEntrega.patchValue({
+        logradouro: cliente.logradouro || '',
+        numero: cliente.numero || '',
+        complemento: cliente.complemento || '',
+        bairro: cliente.bairro || '',
+        cidade: cliente.cidade || '',
+        estado: cliente.estado || '',
+        cep: cliente.cep || '',
+      });
+    } else {
+      this.formEntrega.reset();
     }
   }
 }

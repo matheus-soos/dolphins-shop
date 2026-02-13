@@ -81,7 +81,9 @@ export class CarrinhoComponent implements OnInit {
         const carrinho = response.carrinho || response;
 
         carrinho?.Itens_Carrinho?.forEach((item: any) => {
-          item.Produto.img = this.produtosService.getImageURL(item.Produto.imgPath);
+          if(item.Produto?.imgPath) {
+            item.Produto.img = this.produtosService.getImageURL(item.Produto.imgPath);
+          }
         });
 
         this.carrinho = carrinho;

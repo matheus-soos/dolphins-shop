@@ -180,4 +180,25 @@ router.post('/cadastroCliente', async (req, res, next) => {
     }
 })
 
+router.get("/getCliente/:user_id", async (req, res, next) => {
+    try {
+        const user = await User.findOne({
+            where: { id: req.params.user_id },
+            attributes: ["id", "email"],
+            include: [
+                { model: Cliente, as: "Cliente" }
+            ]
+        })
+
+        if(!user) {
+            res.status(401).send("Usuário não encontrado.")
+            return
+        }
+
+        res.json({ success: true, user })
+    } catch (error) {
+        res.status(500).json({ error })
+    }
+})
+
 module.exports = router

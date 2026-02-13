@@ -9,6 +9,12 @@
                     <legend>Endereço de Entrega</legend>
 
                     <div class="form-row">
+                        <mat-checkbox (change)="onEnderecoChange($event)">
+                            Usar o mesmo endereço de cobrança
+                        </mat-checkbox>
+                    </div>
+
+                    <div class="form-row">
                         <mat-form-field appearance="outline">
                             <mat-label>CEP</mat-label>
                             <input matInput formControlName="cep" (blur)="onCepChange()" mask="00000-000">

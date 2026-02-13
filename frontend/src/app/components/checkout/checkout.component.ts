@@ -140,9 +140,7 @@ export class CheckoutComponent implements OnInit {
 
   onContinuar() {
     if (this.forma_pagamento.invalid) return;
-
-    console.log(this.freteSelecionado, this.cep_destino)
-
+    
     const reqBase = {
       itens: this.carrinho?.Itens_Carrinho?.map((item: any) => ({
         produto_id: item.produto_id,
