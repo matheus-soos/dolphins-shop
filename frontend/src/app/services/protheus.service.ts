@@ -19,4 +19,10 @@ export class ProtheusService {
     sincronizarCategorias() {
         return this.http.post(environment.API_URL + "/protheus/importarCategorias", {})
     }
+
+    sincronizarImagens(ids: Array<string>) {
+        return this.http.post(environment.API_URL + "/protheus/sincronizarImagens", {
+            ids: ids
+        })
+    }
 }

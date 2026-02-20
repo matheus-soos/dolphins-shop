@@ -95,8 +95,9 @@ export class CategoriasComponent implements OnInit {
 
   onSincronizar() {
     this.protheusService.sincronizarCategorias().subscribe({
-      next: (response) => {
+      next: (response: any) => {
         console.log(response)
+        alert(response.message)
       },
       error: (err) => {
         console.error(err)

@@ -63,8 +63,24 @@ export class ProdutosComponent implements OnInit {
 
   onSincronizar() {
     this.protheusService.sincronizarProdutos().subscribe({
-      next: (response) => {
+      next: (response: any) => {
         console.log(response)
+        alert(response.message)
+      },
+      error: (err) => {
+        console.error(err)
+      }
+    })
+  }
+
+  onSincronizarImagens() {
+    const produtos = this.selection.selected
+    const ids = produtos.map((p: any) => p.id)
+
+    this.protheusService.sincronizarImagens(ids).subscribe({
+      next: (response: any) => {
+        console.log(response)
+        alert(response.message)
       },
       error: (err) => {
         console.error(err)

@@ -8,6 +8,8 @@ const Subcategoria = require("../models/subcategoria");
 // const Municipio = require("../model/municipio");
 dotenv.config();
 const slugify = require("slugify");
+const fs = require("fs");
+const path = require("path");
 
 router.post("/importarProdutos", async (req, res) => {
     importarProdutos();
@@ -127,6 +129,93 @@ async function importarProdutos() {
     console.log("Importação finalizada");
 }
 
+router.post("/sincronizarImagens", async (req, res, next) => {
+    try {
+        const { ids } = req.body;
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ erro: "IDs inválidos" });
+        }
+
+        const baseUrl = `${process.env.REST_URL}/api/Plenservice/v1/ProductService/Image/`;
+        const authString = `${process.env.REST_USER}:${process.env.REST_PASS}`;
+        const Authorization = "Basic " + Buffer.from(authString).toString("base64");
+
+        const produtos = await Produto.findAll({
+            where: { id: ids },
+            attributes: ["id", "cod_produto"]
+        });
+
+        if (!produtos.length) {
+            return res.status(404).json({ erro: "Nenhum produto encontrado" });
+        }
+
+        const resultados = [];
+
+        await Promise.all(
+            produtos.map(async (p) => {
+                try {
+                    const response = await axios.get(baseUrl + p.cod_produto, {
+                        headers: {
+                            Authorization,
+                            "Content-Type": "application/json",
+                            tenantId: "12,44",
+                            Accept: "*/*"
+                        },
+                    });
+
+                    const produto = response.data?.Produtos[0]
+                    const imagemBase64 = produto?.Imagem;
+
+                    if (imagemBase64) {
+
+                        const uploadDir = path.join(__dirname, "..", "uploads", "productImages");
+
+                        if (!fs.existsSync(uploadDir)) {
+                            fs.mkdirSync(uploadDir, { recursive: true });
+                        }
+
+                        const fileName = `${p.cod_produto}.png`;
+                        const filePath = path.join(uploadDir, fileName);
+
+                        await fs.promises.writeFile(filePath, imagemBase64, "base64")
+
+                        await Produto.update(
+                            { imgPath: "uploads/productImages/" + fileName },
+                            { where: { id: p.id } }
+                        );
+
+                        resultados.push({
+                            id: p.id,
+                            status: "sucesso"
+                        });
+                    } else {
+                        resultados.push({
+                            id: p.id,
+                            status: "sem_imagem"
+                        });
+                    }
+
+                } catch (error) {
+                    console.error(error)
+                    resultados.push({
+                        id: p.id,
+                        status: "erro",
+                        erro: error.message
+                    });
+                }
+            })
+        );
+
+        return res.json({
+            message: "Sincronização finalizada",
+            resultados
+        });
+
+    } catch (error) {
+        next(error);
+    }
+});
 
 router.post("/importarClientes", async (req, res) => {
     importarClientes();

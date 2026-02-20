@@ -25,25 +25,10 @@
                     Sincronizar Produtos
                 </button>
 
-                <!-- <button mat-menu-item (click)="movimentacoes()">
-                <mat-icon>sync_alt</mat-icon>
-                Movimentação Múltipla
-            </button>
-
-            <button mat-menu-item (click)="importarInventario()">
-                <mat-icon>storage</mat-icon>
-                Inventário
-            </button>
-
-            <button mat-menu-item [disabled]="this.selection.selected.length == 0" (click)="toggleStatus()">
-                <mat-icon>remove_circle</mat-icon>
-                Ativar / Inativar
-            </button>
-
-            <button mat-menu-item (click)="export()">
-                <mat-icon>file_download</mat-icon>
-                Exportar CSV
-            </button> -->
+                <button mat-menu-item [disabled]="this.selection.selected.length <= 0" (click)="onSincronizarImagens()">
+                    <mat-icon>image</mat-icon>
+                    Sincronizar Imagens
+                </button>
             </mat-menu>
         </div>
     </div>
