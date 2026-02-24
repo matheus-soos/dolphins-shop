@@ -10,5 +10,6 @@ router.use('/pagamentos', require('./pagamentos'))
 router.use('/frete', require('./frete'))
 router.use('/cupons', require('./cupons'))
 router.use('/pedidos' ,require('./pedidos_venda'))
+router.use('/banners' ,require('./banners'))
 
 module.exports = router

@@ -1,0 +1,107 @@
+<div class="wrapper">
+  <div class="container">
+
+    <div class="header">
+      <mat-icon class="header-icon">photo_library</mat-icon>
+      <h3>Gerenciar Banners</h3>
+    </div>
+
+    <!-- ===================== -->
+    <!-- BANNER MAIOR -->
+    <!-- ===================== -->
+
+    <section class="section">
+      <div class="section-title">
+        <h2>Banner Maior</h2>
+        <span class="limit">Máx: {{ maxMaior }}</span>
+      </div>
+
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="fileMaior.click()"
+        [disabled]="bannersMaior.length >= maxMaior"
+      >
+        <mat-icon>upload</mat-icon>
+        Escolher Imagens
+      </button>
+
+      <input 
+        #fileMaior
+        type="file"
+        multiple
+        hidden
+        accept="image/*"
+        (change)="onFileSelected($event, 'maior')"
+      />
+
+      <div class="preview-grid">
+        <mat-card class="preview-card" *ngFor="let banner of bannersMaior; let i = index">
+          <img mat-card-image [src]="banner.preview" />
+
+          <button 
+            mat-icon-button 
+            color="warn"
+            class="remove-btn"
+            (click)="removerBanner(i, 'maior')"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-card>
+      </div>
+    </section>
+
+    <!-- ===================== -->
+    <!-- BANNER MENOR -->
+    <!-- ===================== -->
+
+    <section class="section">
+      <div class="section-title">
+        <h2>Banner Menor</h2>
+        <span class="limit">Máx: {{ maxMenor }}</span>
+      </div>
+
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="fileMenor.click()"
+        [disabled]="bannersMenor.length >= maxMenor"
+      >
+        <mat-icon>upload</mat-icon>
+        Escolher Imagens
+      </button>
+
+      <input 
+        #fileMenor
+        type="file"
+        multiple
+        hidden
+        accept="image/*"
+        (change)="onFileSelected($event, 'menor')"
+      />
+
+      <div class="preview-grid">
+        <mat-card class="preview-card small" *ngFor="let banner of bannersMenor; let i = index">
+          <img mat-card-image [src]="banner.preview" />
+
+          <button 
+            mat-icon-button 
+            color="warn"
+            class="remove-btn"
+            (click)="removerBanner(i, 'menor')"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-card>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button mat-raised-button color="accent" (click)="salvar()">
+        <mat-icon>save</mat-icon>
+        Salvar Banners
+      </button>
+    </div>
+
+  </div>
+</div>
