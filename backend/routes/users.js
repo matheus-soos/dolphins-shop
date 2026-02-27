@@ -42,7 +42,7 @@ router.post('/register', async (req, res, next) => {
             user: user,
             token: {
                 token: token,
-                expiresIn: expiresIn
+                expiresIn: "30d"
             }
         })
     }

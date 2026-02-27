@@ -1,13 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { BannersService } from '../../services/banners.service';
+import { environment } from '../../../environments/environment';
 
 interface Banner {
   file: File;
   preview: string | ArrayBuffer | null;
+  existing?: boolean;
 }
 
 @Component({
@@ -22,7 +24,7 @@ interface Banner {
   styleUrl: './banners.component.scss',
   standalone: true
 })
-export class BannersComponent {
+export class BannersComponent implements OnInit {
   constructor(
     private bannersService: BannersService
   ) { }
@@ -32,6 +34,10 @@ export class BannersComponent {
 
   bannersMaior: Banner[] = [];
   bannersMenor: Banner[] = [];
+
+  ngOnInit(): void {
+    this.getBanners()
+  }
 
   onFileSelected(event: Event, tipo: 'maior' | 'menor') {
     const input = event.target as HTMLInputElement;
@@ -78,21 +84,56 @@ export class BannersComponent {
   salvar() {
     const formData = new FormData();
 
-    this.bannersMaior.forEach(b => {
-      formData.append('heroBanners', b.file);
-    });
+    this.bannersMaior
+      .filter(b => b.file)
+      .forEach(b => {
+        formData.append('heroBanners', b.file as File);
+      });
 
-    this.bannersMenor.forEach(b => {
-      formData.append('secondaryBanners', b.file);
-    });
+    this.bannersMenor
+      .filter(b => b.file)
+      .forEach(b => {
+        formData.append('secondaryBanners', b.file as File);
+      });
 
     this.bannersService.post(formData).subscribe({
       next: (res) => {
         console.log('Upload feito com sucesso', res);
+        this.getBanners();
       },
       error: (err) => {
         console.error('Erro no upload', err);
       }
     });
+  }
+
+  getBanners() {
+    this.bannersService.get().subscribe({
+      next: (response: any) => {
+
+        // HERO / MAIOR
+        this.bannersMaior = (response.hero || []).map((img: string) => ({
+          preview: this.getImageURL('hero', img),
+          existing: true
+        }));
+
+        // SECONDARY / MENOR
+        this.bannersMenor = (response.secondary || []).map((img: string) => ({
+          preview: this.getImageURL('secondary', img),
+          existing: true
+        }));
+
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
+  }
+
+  getImageURL(bannerType: string, imagePath: string) {
+    if (bannerType == "hero") {
+      return environment.URL + "/uploads/banners/hero/" + imagePath;
+    }
+    return environment.URL + "/uploads/banners/secondary/" + imagePath;
   }
 }
