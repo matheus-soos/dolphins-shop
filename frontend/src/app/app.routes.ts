@@ -14,6 +14,7 @@ import { CadastroComponent } from './components/login/cadastro/cadastro.componen
 import { PedidosComponent } from './components/pedidos/pedidos.component';
 import { PagamentoPixComponent } from './components/checkout/pagamento-pix/pagamento-pix.component';
 import { EntregaComponent } from './components/entrega/entrega.component';
+import { BannersComponent } from './components/banners/banners.component';
 
 export const routes: Routes = [
     { path: "", pathMatch: "full", component: InicioComponent },
@@ -31,4 +32,5 @@ export const routes: Routes = [
     { path: "admin/users", component: UsersComponent },
     { path: "admin/cupons", component: CuponsComponent },
     { path: "admin/pedidos", component: PedidosComponent },
+    { path: "admin/banners", component: BannersComponent },
 ];

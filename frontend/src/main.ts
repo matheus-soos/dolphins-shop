@@ -3,6 +3,9 @@ import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
+import { register } from 'swiper/element/bundle';
+
+register()
 registerLocaleData(localePt);
 
 bootstrapApplication(AppComponent, appConfig)

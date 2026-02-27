@@ -28,12 +28,20 @@ app.use(compression())
 
 // Utilização das rotas do sistema
 app.use('/api', require("./routes/routes"))
+
 app.use('/uploads/productImages', (req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  next();
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    next();
 }, express.static(path.join(__dirname, 'uploads', 'productImages')));
+
+app.use('/uploads/banners', (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+}, express.static(path.join(__dirname, 'uploads', 'banners')));
 
 // Rota para teste da autenticação
 app.get("/welcome", auth, (req, res) => {
