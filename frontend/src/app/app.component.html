@@ -1,98 +1,107 @@
 <header class="header">
-  @if (usersService.isAdmin()) {
-  <div class="admin-menu">
-    <ul style="display: flex;">
-      <li class="dropdown">
-        <a class="dropdown-toggle">Cadastros</a>
-        <ul class="dropdown-menu">
-          <li><a routerLink="admin/produtos">Produtos</a></li>
-          <li><a routerLink="admin/categorias">Categorias</a></li>
-          <li><a routerLink="admin/users">Usuários</a></li>
-          <li><a routerLink="admin/cupons">Cupons</a></li>
-          <li><a routerLink="admin/pedidos">Pedidos de Venda</a></li>
-        </ul>
-      </li>
-      <li class="dropdown">
-        <a class="dropdown-toggle">Configurações</a>
-        <ul class="dropdown-menu">
-          <li><a routerLink="admin/banners">Banners</a></li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-  }
-
   <div class="wrapper">
     <div class="menu">
       <div class="logo">
-        <img src="https://economicaonline.com.br/assets/logo-11.png" alt="Logo" routerLink="/">
+        <img
+          src="https://economicaonline.com.br/assets/logo-11.png"
+          alt="Logo"
+          routerLink="/"
+        />
       </div>
 
       <div class="search">
+        <form (submit)="buscaProdutos()" class="search-form">
+          <div class="input">
+            <input
+              type="text"
+              placeholder="Buscar produtos, marcas e muito mais..."
+              [formControl]="textoBusca"
+            />
+          </div>
+        </form>
+
         <div class="icon">
           <mat-icon>search</mat-icon>
         </div>
-
-        <form (submit)="buscaProdutos()">
-          <div class="input">
-            <input type="text" placeholder="Buscar Produto, Marca ou Código..." [formControl]="textoBusca">
-          </div>
-        </form>
       </div>
 
       <div class="actions">
-        @if (authService.isLoggedIn()) {
-        <p>{{user}}</p>
-        }
-        @else {
-        <p (click)="openLogin()">Sign In</p>
-        }
-
         <mat-icon>favorite</mat-icon>
 
-        <mat-icon routerLink="/carrinho" [matBadge]="qtdCarrinho">shopping_bag</mat-icon>
+        <mat-icon routerLink="/carrinho" [matBadge]="qtdCarrinho"
+          >shopping_cart</mat-icon
+        >
+
+        @if (authService.isLoggedIn()) {
+          <div class="user-dropdown">
+            <div class="dropdown-toggle">
+              <mat-icon>account_circle</mat-icon>
+              <span>{{ user }}</span>
+            </div>
+
+            @if (usersService.isAdmin()) {
+              <ul class="dropdown-menu">
+                <li><a routerLink="admin/produtos">Produtos</a></li>
+                <li><a routerLink="admin/categorias">Categorias</a></li>
+                <li><a routerLink="admin/users">Usuários</a></li>
+                <li><a routerLink="admin/cupons">Cupons</a></li>
+                <li><a routerLink="admin/pedidos">Pedidos de Venda</a></li>
+                <hr
+                  style="border: 0; border-top: 1px solid #ddd; margin: 5px 0"
+                />
+                <li><a routerLink="admin/banners">Banners</a></li>
+              </ul>
+            }
+          </div>
+        } @else {
+          <p (click)="openLogin()">Sign In</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="categorias-bar">
+    <div
+      class="all-categories"
+      (mouseenter)="menuToggle(true)"
+      (mouseleave)="menuToggle(false)"
+    >
+      <mat-icon class="menu-categorias">menu</mat-icon>
+      <span>Categorias</span>
+      <mat-icon class="arrow">keyboard_arrow_down</mat-icon>
+
+      <div class="vertical-menu" id="menu-container">
+        <div class="categorias-lista">
+          @for (categoria of categorias; track categoria.id) {
+            <div
+              class="categoria-item"
+              (mouseenter)="categoriaSelecionada = categoria"
+            >
+              <span class="categoria-nome">{{ categoria.nome }}</span>
+              <mat-icon class="seta-discreta">chevron_right</mat-icon>
+
+              <div class="subcategorias-panel">
+                <div class="grid-subcategorias">
+                  @for (sub of subCategoria; track sub.id) {
+                    <div
+                      class="subcategoria-link"
+                      (click)="visualizarProdutos(categoriaSelecionada, sub)"
+                    >
+                      {{ sub.nome }}
+                    </div>
+                  }
+                  @if (subCategoria.length === 0) {
+                    <p class="empty-msg">Nenhuma subcategoria</p>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
       </div>
     </div>
   </div>
 </header>
-
-<section>
-  <div class="categorias-bar">
-    <button class="btn-scroll" (click)="scrollCategorias(-500)">
-      <mat-icon>chevron_left</mat-icon>
-    </button>
-
-    <div class="wrapper" style="max-width: 80%;">
-      <div class="categorias" #categoriasScroll>
-        @for (categoria of categorias; track $index) {
-        <div class="categoria" (mouseenter)="categoriaExpand($event); categoriaSelecionada = categoria"
-          (mouseleave)="categoriaExpand($event)">
-          <p>{{categoria.nome}}</p>
-
-          <mat-icon>arrow_drop_down</mat-icon>
-        </div>
-        }
-      </div>
-    </div>
-
-    <button class="btn-scroll" (click)="scrollCategorias(500)">
-      <mat-icon>chevron_right</mat-icon>
-    </button>
-  </div>
-
-  <div class="categoria-expanded" id="categoria-expanded" (mouseenter)="categoriaExpand($event)"
-    (mouseleave)="categoriaExpand($event)">
-    <div class="wrapper">
-      <div class="subcategorias">
-        @for (item of subCategoria; track $index) {
-        <div class="subcategoria" (click)="visualizarProdutos(categoriaSelecionada, item); categoriaExpand($event)">
-          <p>{{item.nome}}</p>
-        </div>
-        }
-      </div>
-    </div>
-  </div>
-</section>
 
 <main class="container">
   <router-outlet></router-outlet>
