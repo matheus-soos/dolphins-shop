@@ -12,26 +12,20 @@ import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-inicio',
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatButtonModule,
-    ProdutoCardComponent
-  ],
+  imports: [CommonModule, MatIconModule, MatButtonModule, ProdutoCardComponent],
   templateUrl: './inicio.component.html',
   styleUrl: './inicio.component.scss',
-  standalone: true
+  standalone: true,
 })
 export class InicioComponent implements OnInit {
-
   constructor(
     private produtosService: ProdutosService,
     private carrinhosService: CarrinhosService,
     private bannersService: BannersService,
-    private dialog: MatDialog
-  ) { }
+    private dialog: MatDialog,
+  ) {}
 
-  produtos: any[] = []
+  produtos: any[] = [];
 
   heroBanners: string[] = [];
   secondaryBanners: string[] = [];
@@ -48,20 +42,19 @@ export class InicioComponent implements OnInit {
   interval: any;
 
   ngOnInit(): void {
-    this.getProdutos()
-    this.getBanners()
-
+    this.getProdutos();
+    this.getBanners();
   }
 
   getProdutos() {
     this.produtosService.getProdutos().subscribe((response) => {
-      const produtos = response.produtos
+      const produtos = response.produtos;
       produtos.forEach((produto: any) => {
-        produto.img = this.produtosService.getImageURL(produto.imgPath)
-      })
+        produto.img = this.produtosService.getImageURL(produto.imgPath);
+      });
 
-      this.produtos = produtos
-    })
+      this.produtos = produtos;
+    });
   }
 
   getBanners() {
@@ -80,15 +73,15 @@ export class InicioComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-      }
+      },
     });
   }
 
   getImageURL(bannerType: string, imagePath: string) {
-    if (bannerType == "hero") {
-      return environment.URL + "/uploads/banners/hero/" + imagePath;
+    if (bannerType == 'hero') {
+      return environment.URL + '/uploads/banners/hero/' + imagePath;
     }
-    return environment.URL + "/uploads/banners/secondary/" + imagePath;
+    return environment.URL + '/uploads/banners/secondary/' + imagePath;
   }
 
   //////////////////////////////////////////////////////////
@@ -159,6 +152,13 @@ export class InicioComponent implements OnInit {
   goToSecondary(index: number) {
     this.currentIndexSecondary = index;
     this.resetAutoSlideSecondary();
+  }
+
+  scroll(el: HTMLElement, amount: number) {
+    el.scrollBy({
+      left: amount,
+      behavior: 'smooth',
+    });
   }
 
   //////////////////////////////////////////////////////////

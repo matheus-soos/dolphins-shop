@@ -1,6 +1,11 @@
 .host {
   display: grid;
+}
 
+.wrapper {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
 }
 
 .banners {
@@ -16,22 +21,45 @@
   position: relative;
   overflow: hidden;
   width: 100%;
-  max-height: 500px;
+  max-width: 1500px;
+  margin: 0 auto;
+  height: 500px;
+  border-radius: 8px;
+  margin-top: 15px;
+
+  @media (max-width: 768px) {
+    height: 250px;
+    max-width: 100%;
+    margin-top: 0;
+    border-radius: 0;
+  }
 }
 
 .carousel-track {
   display: flex;
+  height: 100%;
   transition: transform 0.5s ease-in-out;
 }
 
 .carousel-slide {
   min-width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .carousel-slide img {
   width: 100%;
-  height: 500px;
+  height: 100%;
   object-fit: cover;
+  display: block;
+
+  aspect-ratio: 16 / 5;
+
+  @media (max-width: 768px) {
+    aspect-ratio: 4 / 3;
+    height: auto;
+  }
 }
 
 .secondary-carousel {
@@ -39,25 +67,55 @@
 }
 
 .secondary-carousel .carousel-slide img {
-  height: 300px;
-  object-fit: cover;
+  height: 250px;
+
+  @media (max-width: 768px) {
+    height: 150px;
+  }
 }
 
 /* Botões */
-.prev, .next {
+.prev,
+.next {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.3);
   color: white;
   border: none;
-  font-size: 24px;
-  padding: 10px 15px;
   cursor: pointer;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: background 0.3s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.6);
+  }
+
+  @media (max-width: 768px) {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
 }
 
-.prev { left: 10px; }
-.next { right: 10px; }
+.carousel:hover .prev,
+.carousel:hover .next {
+  opacity: 1;
+}
+
+.prev {
+  left: 15px;
+}
+.next {
+  right: 15px;
+}
 
 /* Indicadores */
 .indicators {
@@ -65,16 +123,22 @@
   bottom: 15px;
   width: 100%;
   text-align: center;
+  z-index: 10;
 }
 
 .indicators span {
   display: inline-block;
-  width: 12px;
-  height: 12px;
-  margin: 5px;
-  background: rgba(255,255,255,0.5);
+  width: 10px;
+  height: 10px;
+  margin: 0 5px;
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
   cursor: pointer;
+  transition: background 0.3s;
+
+  &.active {
+    background: white;
+  }
 }
 
 .indicators span.active {
@@ -85,7 +149,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 40px 0;
+  padding: 0;
 }
 
 .produtos-content {
@@ -104,15 +168,24 @@
   width: 100%;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .produtos {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-  gap: 40px;
-  padding: 32px 20px;
+  align-items: stretch;
+  gap: 20px;
+  padding: 20px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .arrow {
@@ -139,10 +212,29 @@
   display: flex;
   flex-direction: row;
   background-color: #ededed;
-  height: 160px;
+  min-height: 160px;
+  height: auto;
   align-items: center;
   justify-content: space-around;
-  padding-inline: 32px;
+  padding: 32px;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 20px;
+  }
+}
+
+.description {
+  h1 {
+    margin-bottom: 8px;
+    font-size: 24px;
+  }
+  p {
+    margin: 0;
+    color: #666;
+  }
 }
 
 .form {
@@ -153,7 +245,7 @@
 
   .input {
     width: 320px;
-    padding: 16px 20px;
+    padding: 12px 20px;
     border: 1px solid #c7c7c7;
     background-color: #ffffff;
     border-radius: 20px;
@@ -171,5 +263,22 @@
     background-color: var(--primary-color);
     color: #ffffff;
     width: 120px;
+    height: 45px;
+    border-radius: 20px;
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+
+    .input {
+      width: 80%;
+      margin-right: 0;
+    }
+
+    button {
+      width: 100%;
+    }
   }
 }
