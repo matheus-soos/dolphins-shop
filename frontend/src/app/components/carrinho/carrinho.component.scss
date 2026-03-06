@@ -213,3 +213,13 @@ main {
         color: #525B43;
     }
 }
+
+.sugestoes{
+    margin-top:40px;
+}
+
+.products-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:20px;
+}

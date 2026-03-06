@@ -20,7 +20,8 @@
                                 <p>{{item.Produto.valor_venda * item.quantidade | currency: 'BRL'}}</p>
                             </div>
                             <div class="actions">
-                                <button mat-icon-button (click)="excluirItem(item.Produto.id)"><mat-icon>delete</mat-icon></button>
+                                <button mat-icon-button
+                                    (click)="excluirItem(item.Produto.id)"><mat-icon>delete</mat-icon></button>
                                 <div class="quantidade">
                                     <mat-icon (click)="removerItem(item.Produto.id)">remove</mat-icon>
                                     <p>{{item.quantidade}}</p>
@@ -54,7 +55,8 @@
                         </div>
 
                         <ng-container>
-                            <mat-radio-group [formControl]="freteSelecionado" class="frete-list" (change)="selectFrete()">
+                            <mat-radio-group [formControl]="freteSelecionado" class="frete-list"
+                                (change)="selectFrete()">
                                 <mat-card *ngFor="let frete of fretes" class="frete-card">
                                     <mat-radio-button [value]="frete" style="width: 100%;">
                                         <div class="frete-card-content">
@@ -122,6 +124,19 @@
                     <a routerLink="/">Continuar Comprando</a>
                 </div>
             </div>
+        </div>
+
+        <div class="sugestoes" *ngIf="sugestoes?.length">
+
+            <h3>Quem comprou esses itens também levou</h3>
+
+            <div class="products-grid">
+
+                <app-produto-card *ngFor="let produto of sugestoes" [produto]="produto">
+                </app-produto-card>
+
+            </div>
+
         </div>
     </div>
 </main>

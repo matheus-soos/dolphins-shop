@@ -158,4 +158,86 @@ router.get("/getCFOP", (req, res, next) => {
 
 })
 
+router.get('/:id/relacionados', async (req, res) => {
+    try {
+
+        const { id } = req.params;
+
+        const produto = await Produto.findByPk(id);
+
+        if (!produto) {
+            return res.status(404).json({ erro: "Produto não encontrado" });
+        }
+
+        // PRODUTOS RELACIONADOS (mesma subcategoria)
+        const relacionados = await Produto.findAll({
+            where: {
+                id: { [Op.ne]: id },
+                subcategoria_id: produto.subcategoria_id,
+                status: 'Disponível'
+            },
+            limit: 6
+        });
+
+        // SUGESTÕES (mesma categoria)
+        const sugestoes = await Produto.findAll({
+            where: {
+                id: { [Op.ne]: id },
+                categoria_id: produto.categoria_id,
+                status: 'Disponível'
+            },
+            order: Sequelize.literal('RANDOM()'),
+            limit: 6
+        });
+
+        res.json({
+            relacionados,
+            sugestoes
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ erro: "Erro ao buscar produtos" });
+    }
+});
+
+router.post('/sugestoes-carrinho', async (req, res) => {
+
+  try {
+
+    const { produtos } = req.body; // array de ids
+
+    const itensCarrinho = await Produto.findAll({
+      where: {
+        id: produtos
+      }
+    });
+
+    const categorias = [...new Set(itensCarrinho.map(p => p.categoria_id))];
+    const subcategorias = [...new Set(itensCarrinho.map(p => p.subcategoria_id))];
+
+    const sugestoes = await Produto.findAll({
+      where: {
+        id: { [Op.notIn]: produtos },
+        [Op.or]: [
+          { categoria_id: categorias },
+          { subcategoria_id: subcategorias }
+        ],
+        status: 'Disponível'
+      },
+      order: Sequelize.literal('RANDOM()'),
+      limit: 8
+    });
+
+    res.json(sugestoes);
+
+  } catch (err) {
+
+    console.error(err);
+    res.status(500).json({ erro: 'Erro ao buscar sugestões' });
+
+  }
+
+});
+
 module.exports = router

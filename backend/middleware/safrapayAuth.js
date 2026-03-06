@@ -4,7 +4,7 @@ const SAFRAPAY_MERCHANT_KEY = process.env.SAFRAPAY_MERCHANT_KEY;
 let cachedToken = null;
 let tokenExpiresAt = null;
 
-module.exports = async function safrapayAuth(req, res, next) {
+const safrapayAuth = async (req, res, next) => {
     try {
         // Se o token ainda for válido, reutiliza
         if (cachedToken && tokenExpiresAt && Date.now() < tokenExpiresAt) {
@@ -42,3 +42,5 @@ module.exports = async function safrapayAuth(req, res, next) {
         res.status(500).json({ message: "Erro ao autenticar no SafraPay" });
     }
 };
+
+module.exports = safrapayAuth

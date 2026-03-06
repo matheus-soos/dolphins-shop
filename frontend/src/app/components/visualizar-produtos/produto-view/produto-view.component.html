@@ -40,5 +40,30 @@
                 </div>
             </div>
         </div>
+
+        <!-- PRODUTOS RELACIONADOS -->
+        <div class="products-section" *ngIf="relacionados.length">
+
+            <h2>Produtos Relacionados</h2>
+
+            <div class="products-grid">
+                <app-produto-card *ngFor="let produto of relacionados" [produto]="produto">
+                </app-produto-card>
+            </div>
+
+        </div>
+
+
+        <!-- SUGESTÕES -->
+        <div class="products-section" *ngIf="sugestoes.length">
+
+            <h2>Você também pode gostar</h2>
+
+            <div class="products-grid">
+                <app-produto-card *ngFor="let produto of sugestoes" [produto]="produto">
+                </app-produto-card>
+            </div>
+
+        </div>
     </div>
 </main>

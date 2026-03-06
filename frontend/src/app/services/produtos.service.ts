@@ -45,4 +45,12 @@ export class ProdutosService {
   getNCM(): Observable<any> {
     return this.http.get<any>(environment.API_URL + "/produtos/getNCM")
   }
+
+  getRelacionados(produto_id: number): Observable<any> {
+    return this.http.get(environment.API_URL + "/produtos/" + produto_id + "/relacionados")
+  }
+
+  getSugestoesCarrinho(produtos: Array<any>) {
+    return this.http.post<any>(environment.API_URL + '/produtos/sugestoes-carrinho', { produtos })
+  }
 }

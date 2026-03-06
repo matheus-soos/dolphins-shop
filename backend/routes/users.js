@@ -3,6 +3,7 @@ const router = require("express").Router()
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken");
 const Cliente = require("../models/cliente");
+const auth = require("../middleware/auth")
 
 router.post('/register', async (req, res, next) => {
     try {
@@ -90,7 +91,7 @@ router.post('/login', async (req, res, next) => {
     }
 })
 
-router.get("/getUsers", async (req, res, next) => {
+router.get("/getUsers", auth, async (req, res, next) => {
     try {
         const users = await User.findAll()
 
@@ -101,7 +102,7 @@ router.get("/getUsers", async (req, res, next) => {
     }
 })
 
-router.get("/getUser/:id", async (req, res, next) => {
+router.get("/getUser/:id", auth, async (req, res, next) => {
     try {
         const user = await User.findOne({
             where: { id: req.params.id }
@@ -114,7 +115,7 @@ router.get("/getUser/:id", async (req, res, next) => {
     }
 })
 
-router.post('/cadastroCliente', async (req, res, next) => {
+router.post('/cadastroCliente', auth, async (req, res, next) => {
     try {
         const { email, password, nome, cpf, telefone, dataNascimento, cep, logradouro, numero, complemento, bairro, cidade, estado, } = req.body
 
@@ -180,7 +181,7 @@ router.post('/cadastroCliente', async (req, res, next) => {
     }
 })
 
-router.get("/getCliente/:user_id", async (req, res, next) => {
+router.get("/getCliente/:user_id", auth, async (req, res, next) => {
     try {
         const user = await User.findOne({
             where: { id: req.params.user_id },

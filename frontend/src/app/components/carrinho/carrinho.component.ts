@@ -17,6 +17,7 @@ import { AuthService } from '../../services/auth.service';
 import { LoginComponent } from '../login/login.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CheckoutStepsComponent } from '../checkout-steps/checkout-steps.component';
+import { ProdutoCardComponent } from '../produto-card/produto-card.component';
 
 @Component({
   selector: 'app-carrinho',
@@ -33,7 +34,8 @@ import { CheckoutStepsComponent } from '../checkout-steps/checkout-steps.compone
     FormsModule,
     MatRadioModule,
     MatCardModule,
-    CheckoutStepsComponent
+    CheckoutStepsComponent,
+    ProdutoCardComponent
   ],
   templateUrl: './carrinho.component.html',
   styleUrl: './carrinho.component.scss',
@@ -81,12 +83,14 @@ export class CarrinhoComponent implements OnInit {
         const carrinho = response.carrinho || response;
 
         carrinho?.Itens_Carrinho?.forEach((item: any) => {
-          if(item.Produto?.imgPath) {
+          if (item.Produto?.imgPath) {
             item.Produto.img = this.produtosService.getImageURL(item.Produto.imgPath);
           }
         });
 
         this.carrinho = carrinho;
+
+        this.carregarSugestoesCarrinho()
       },
       error: (err) => {
         console.error(err);
@@ -264,6 +268,29 @@ export class CarrinhoComponent implements OnInit {
     }
 
     this.router.navigate(['/checkout']);
+  }
+
+  sugestoes: any[] = [];
+
+  async carregarSugestoesCarrinho() {
+
+    const produtos = this.carrinho?.Itens_Carrinho?.map((item: any) => item.produto_id);
+
+    if (!produtos?.length) return;
+
+    this.produtosService.getSugestoesCarrinho(produtos).subscribe({
+      next: (response) => {
+        this.sugestoes = response
+
+        this.sugestoes.forEach((produto) => {
+          produto.img = this.produtosService.getImageURL(produto.imgPath)
+        })
+      },
+      error: (err) => {
+        console.error(err)
+      }
+    })
+
   }
 
 }
