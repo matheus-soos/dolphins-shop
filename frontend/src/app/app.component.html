@@ -54,7 +54,10 @@
             }
           </div>
         } @else {
-          <p (click)="openLogin()">Sign In</p>
+          <div class="signIn">
+            <mat-icon (click)="openLogin()">account_circle</mat-icon>
+            <span (click)="openLogin()">Entrar</span>
+          </div>
         }
       </div>
     </div>

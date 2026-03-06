@@ -1,23 +1,25 @@
 <section *ngIf="heroBanners.length">
   <div class="carousel">
-
-    <div class="carousel-track" [style.transform]="'translateX(-' + currentIndexHero * 100 + '%)'">
-
+    <div
+      class="carousel-track"
+      [style.transform]="'translateX(-' + currentIndexHero * 100 + '%)'"
+    >
       <div class="carousel-slide" *ngFor="let banner of heroBanners">
-        <img [src]="getImageURL('hero', banner)" alt="Banner">
+        <img [src]="getImageURL('hero', banner)" alt="Banner" />
       </div>
-
     </div>
 
     <button class="prev" (click)="prevHero()">❮</button>
     <button class="next" (click)="nextHero()">❯</button>
 
     <div class="indicators">
-      <span *ngFor="let banner of heroBanners; let i = index" [class.active]="i === currentIndexHero"
-        (click)="goToHero(i)">
+      <span
+        *ngFor="let banner of heroBanners; let i = index"
+        [class.active]="i === currentIndexHero"
+        (click)="goToHero(i)"
+      >
       </span>
     </div>
-
   </div>
 </section>
 
@@ -26,17 +28,21 @@
     <h1>Mais Vendidos</h1>
 
     <div class="produtos-row">
-      <mat-icon class="arrow">chevron_left</mat-icon>
+      <mat-icon class="arrow" (click)="scroll(listaMaisVendidos, -300)"
+        >chevron_left</mat-icon
+      >
 
       <div class="wrapper">
-        <div class="produtos">
+        <div class="produtos" #listaMaisVendidos>
           @for (produto of produtos; track $index) {
-          <app-produto-card [produto]="produto"></app-produto-card>
+            <app-produto-card [produto]="produto"></app-produto-card>
           }
         </div>
       </div>
 
-      <mat-icon class="arrow">chevron_right</mat-icon>
+      <mat-icon class="arrow" (click)="scroll(listaMaisVendidos, 300)"
+        >chevron_right</mat-icon
+      >
     </div>
   </div>
 
@@ -44,41 +50,47 @@
     <h1>Ofertas</h1>
 
     <div class="produtos-row">
-      <mat-icon class="arrow">chevron_left</mat-icon>
+      <mat-icon class="arrow" (click)="scroll(listaOfertas, -300)"
+        >chevron_left</mat-icon
+      >
 
       <div class="wrapper">
-        <div class="produtos">
+        <div class="produtos" #listaOfertas>
           @for (produto of produtos; track $index) {
-          <app-produto-card [produto]="produto"></app-produto-card>
+            <app-produto-card [produto]="produto"></app-produto-card>
           }
         </div>
       </div>
 
-      <mat-icon class="arrow">chevron_right</mat-icon>
+      <mat-icon class="arrow" (click)="scroll(listaOfertas, 300)"
+        >chevron_right</mat-icon
+      >
     </div>
   </div>
 </section>
 
 <section *ngIf="secondaryBanners.length">
   <div class="carousel secondary-carousel">
-
-    <div class="carousel-track" [style.transform]="'translateX(-' + currentIndexSecondary * 100 + '%)'">
-
+    <div
+      class="carousel-track"
+      [style.transform]="'translateX(-' + currentIndexSecondary * 100 + '%)'"
+    >
       <div class="carousel-slide" *ngFor="let banner of secondaryBanners">
-        <img [src]="getImageURL('secondary', banner)" alt="Banner">
+        <img [src]="getImageURL('secondary', banner)" alt="Banner" />
       </div>
-
     </div>
 
     <button class="prev" (click)="prevSecondary()">❮</button>
     <button class="next" (click)="nextSecondary()">❯</button>
 
     <div class="indicators">
-      <span *ngFor="let banner of secondaryBanners; let i = index" [class.active]="i === currentIndexSecondary"
-        (click)="goToSecondary(i)">
+      <span
+        *ngFor="let banner of secondaryBanners; let i = index"
+        [class.active]="i === currentIndexSecondary"
+        (click)="goToSecondary(i)"
+      >
       </span>
     </div>
-
   </div>
 </section>
 
@@ -87,12 +99,12 @@
     <div class="description">
       <h1>Inscreva-se na Newsletter</h1>
 
-      <p>Receba novidades, lançamentos e promoções em seu e-mail. </p>
+      <p>Receba novidades, lançamentos e promoções em seu e-mail.</p>
     </div>
 
     <div class="form">
       <div class="input">
-        <input type="text" placeholder="Digite seu E-mail">
+        <input type="text" placeholder="Digite seu E-mail" />
       </div>
 
       <button mat-button>Enviar</button>
