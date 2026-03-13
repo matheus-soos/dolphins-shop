@@ -605,6 +605,46 @@
   }
 }
 
+.whatsapp-flutuante {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background-color: var(--primary-color);
+  color: #ffffff;
+  padding: 12px 22px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.whatsapp-flutuante:hover {
+  transform: translateY(-5px);
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.whatsapp-flutuante i {
+  font-size: 22px;
+}
+
+@media (max-width: 600px) {
+  .whatsapp-flutuante span {
+    display: none;
+  }
+  .whatsapp-flutuante {
+    padding: 15px;
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .categorias-bar {
     background-color: transparent !important;
