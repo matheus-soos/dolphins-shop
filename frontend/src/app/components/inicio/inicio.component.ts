@@ -42,8 +42,27 @@ export class InicioComponent implements OnInit {
   interval: any;
 
   ngOnInit(): void {
+    this.initTrustIndex();
     this.getProdutos();
     this.getBanners();
+  }
+
+  initTrustIndex() {
+    const oldScript = document.querySelector('script[src*="trustindex.io"]');
+    if (oldScript) {
+      oldScript.remove();
+    }
+
+    const script = document.createElement('script');
+    script.src =
+      'https://cdn.trustindex.io/loader.js?8a5eb9867389034a5d36af8f711';
+    script.async = true;
+    script.defer = true;
+
+    const container = document.getElementById('trustindex-container');
+    if (container) {
+      container.appendChild(script);
+    }
   }
 
   getProdutos() {
