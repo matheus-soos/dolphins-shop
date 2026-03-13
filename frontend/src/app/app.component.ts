@@ -74,6 +74,20 @@ export class AppComponent implements OnInit {
     this.carrinhosService.qtdCarrinho$.subscribe((qtd) => {
       this.qtdCarrinho = qtd;
     });
+
+    this.verificarAcessoInicial();
+  }
+
+  verificarAcessoInicial() {
+    const isLogged = this.authService.isLoggedIn();
+    const modalJaExibido = sessionStorage.getItem('modal_cadastro_exibido');
+
+    if (!isLogged && !modalJaExibido) {
+      setTimeout(() => {
+        this.openLogin();
+        sessionStorage.setItem('modal_cadastro_exibido', 'true');
+      }, 2000);
+    }
   }
 
   openLogin() {
