@@ -36,6 +36,7 @@ import { MatMenuModule } from '@angular/material/menu';
 })
 export class AppComponent implements OnInit {
   @ViewChild('categoriasScroll') categoriasScroll!: ElementRef;
+  categoriaAbertaMobile: number | null = null;
 
   constructor(
     private dialog: MatDialog,
@@ -95,6 +96,14 @@ export class AppComponent implements OnInit {
 
   toggleMobileMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  toggleSubcategoriaMobile(id: number, event: Event) {
+    if (window.innerWidth <= 768) {
+      event.stopPropagation();
+      this.categoriaAbertaMobile =
+        this.categoriaAbertaMobile === id ? null : id;
+    }
   }
 
   menuToggle(open: boolean) {

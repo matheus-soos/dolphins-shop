@@ -73,22 +73,35 @@
       <span>Categorias</span>
       <mat-icon class="arrow">keyboard_arrow_down</mat-icon>
 
-      <div class="vertical-menu" id="menu-container">
+      <div
+        class="vertical-menu"
+        [class.active]="mobileMenuOpen"
+        id="menu-container"
+      >
         <div class="categorias-lista">
           @for (categoria of categorias; track categoria.id) {
             <div
               class="categoria-item"
+              [class.is-active]="categoriaAbertaMobile === categoria.id"
               (mouseenter)="categoriaSelecionada = categoria"
+              (click)="toggleSubcategoriaMobile(categoria.id, $event)"
             >
               <span class="categoria-nome">{{ categoria.nome }}</span>
-              <mat-icon class="seta-discreta">chevron_right</mat-icon>
+              <mat-icon
+                class="seta-discreta"
+                [class.aberta]="categoriaAbertaMobile === categoria.id"
+                >chevron_right</mat-icon
+              >
 
-              <div class="subcategorias-panel">
+              <div
+                class="subcategorias-panel"
+                [class.show-mobile]="categoriaAbertaMobile === categoria.id"
+              >
                 <div class="grid-subcategorias">
-                  @for (sub of subCategoria; track sub.id) {
+                  @for (sub of categoria.Subcategorias; track sub.id) {
                     <div
                       class="subcategoria-link"
-                      (click)="visualizarProdutos(categoriaSelecionada, sub)"
+                      (click)="visualizarProdutos(categoria, sub)"
                     >
                       {{ sub.nome }}
                     </div>
