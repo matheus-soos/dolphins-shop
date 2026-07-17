@@ -115,7 +115,7 @@ router.get("/getUser/:id", auth, async (req, res, next) => {
     }
 })
 
-router.post('/cadastroCliente', auth, async (req, res, next) => {
+router.post('/cadastroCliente', async (req, res, next) => {
     try {
         const { email, password, nome, cpf, telefone, dataNascimento, cep, logradouro, numero, complemento, bairro, cidade, estado, } = req.body
 

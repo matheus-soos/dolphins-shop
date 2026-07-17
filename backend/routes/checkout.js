@@ -170,14 +170,18 @@ router.post("/finalizar/cartao", safrapayAuth, async (req, res) => {
     const transaction = await database.transaction();
 
     try {
-        const { cliente_id, itens, frete, desconto_total, temporaryToken } = req.body;
+        const { itens, frete, desconto_total, temporaryToken } = req.body;
+
+        const cliente = await Cliente.findOne({
+            where: { user_id: req.user.user_id }
+        });
+
+        if (!cliente?.id) {
+            return res.status(400).json({ message: "Cliente não encontrado" });
+        }
 
         if (!temporaryToken) {
             return res.status(400).json({ message: "temporaryToken obrigatório" });
-        }
-
-        if (!cliente_id) {
-            return res.status(400).json({ message: "cliente_id obrigatório" });
         }
 
         if (!itens || !Array.isArray(itens) || itens.length === 0) {
@@ -195,7 +199,7 @@ router.post("/finalizar/cartao", safrapayAuth, async (req, res) => {
 
         // 1) cria pedido
         const pedido = await Pedido_Venda.create({
-            cliente_id,
+            cliente_id: cliente.id,
             status: "Pendente",
             forma_pagamento: "Credito",
             valor_total: total,

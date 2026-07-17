@@ -22,7 +22,7 @@ const Pedido_Venda = database.define("Pedido_Venda", {
     },
     status: {
         type: DataTypes.STRING,
-        defaultValue: "Pendente", // "Pendente", "Pago", "Enviado", "Cancelado"
+        defaultValue: "Pendente", // "Pendente", "Pago", "Integrado", "Cancelado"
         allowNull: false
     },
     forma_pagamento: {

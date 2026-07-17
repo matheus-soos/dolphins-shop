@@ -3,7 +3,7 @@ const axios = require('axios');
 
 router.post("/calcularFrete", async (req, res) => {
     try {
-        const { itens, cep_destino, cep_origem } = req.body;
+        const { itens, cep_destino, cep_origem = "01002001" } = req.body;
 
         let totalPeso = 0;
         let volumeTotal = 0;

@@ -4,6 +4,8 @@ const helmet = require("helmet");
 const compression = require("compression");
 const auth = require("./middleware/auth");
 const path = require("path")
+const https = require('https');
+const fs = require('fs');
 require("dotenv").config();
 
 const app = express();
@@ -52,8 +54,13 @@ app.get("/welcome", auth, (req, res) => {
 const { API_PORT } = process.env
 const port = API_PORT || 3000
 
-app.listen(port, () => {
-    console.log('Listening to port ' + API_PORT)
-})
+const options = {
+    key: fs.readFileSync('./private.key'),
+    cert: fs.readFileSync('./certificate.crt')
+};
+
+https.createServer(options, app).listen(3060, () => {
+    console.log('Servidor HTTPS iniciado');
+});
 
 module.exports = app
