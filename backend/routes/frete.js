@@ -3,7 +3,7 @@ const axios = require('axios');
 
 router.post("/calcularFrete", async (req, res) => {
     try {
-        const { itens, cep_destino, cep_origem } = req.body;
+        const { itens, cep_destino, cep_origem = "0646020" } = req.body;
 
         let totalPeso = 0;
         let volumeTotal = 0;
@@ -42,7 +42,7 @@ router.post("/calcularFrete", async (req, res) => {
                 'User-Agent': 'Aplicação matheus.soos@plentech.com.br'
             },
             data: {
-                from: { postal_code: "05577200" },
+                from: { postal_code: cep_origem },
                 to: { postal_code: cep_destino.replace('-', '') },
                 package: {
                     height: pacote.altura,
