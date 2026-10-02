@@ -5,10 +5,10 @@ const Produto = require("../models/produto");
 const Cliente = require("../models/cliente");
 const Categoria = require("../models/categoria");
 const Subcategoria = require("../models/subcategoria");
-// const Municipio = require("../model/municipio");
 const Pagamento = require("../models/pagamento")
 const Pedido_Venda = require("../models/pedido_venda");
 const Pedido_Venda_Item = require("../models/pedido_venda_item")
+const User = require("../models/user");
 
 dotenv.config();
 const slugify = require("slugify");
@@ -363,62 +363,6 @@ router.post("/importarCategorias", async (req, res) => {
     }
 });
 
-// router.post("/importarMunicipios", async (req, res) => {
-//     importarMunicipiosProtheus();
-//     res.status(202).json({ message: "Importação iniciada" });
-// });
-
-// async function importarMunicipiosProtheus() {
-//     const baseUrl = `${process.env.REST_URL}/api/Plenservice/v1/ProductService/Municipios`;
-//     const authString = `${process.env.PROTHEUS_USER}:${process.env.PROTHEUS_PASSWORD}`;
-//     const Authorization = "Basic " + Buffer.from(authString).toString("base64");
-
-//     const pageSize = 200;
-
-//     let page = 1;
-//     let totalPages = 1;
-
-//     do {
-//         const response = await axios.get(baseUrl, {
-//             params: {
-//                 Page: page,
-//                 PageSize: pageSize,
-//             },
-//             headers: {
-//                 Authorization: Authorization,
-//                 contentType: "application/json",
-//                 tenantId: "03,03",
-//             },
-//         });
-
-//         const { Municipios, TotalPages } = response.data;
-
-//         for (const m of Municipios) {
-//             await Municipio.findOneAndUpdate(
-//                 {
-//                     estado: m.Estado,
-//                     municipio: m.Municipio
-//                 },
-//                 {
-//                     estado: m.Estado,
-//                     municipio: m.Municipio,
-//                 },
-//                 { upsert: true },
-//             );
-//         }
-
-//         console.log(Municipios.length, page);
-
-//         totalPages = TotalPages;
-//         page++;
-
-//         // Evita sobrecarregar o Protheus
-//         await new Promise((r) => setTimeout(r, 1000));
-//     } while (page <= totalPages);
-
-//     console.log("Importação finalizada");
-// }
-
 function normalizeText(text) {
     if (!text) return "";
     return text
@@ -470,7 +414,7 @@ function mapPedidoToSalesOrder(pedido) {
             cliente: {
                 nome: cliente.nome,
                 cpfCnpj: cliente.cpf,
-                email: cliente.email,
+                email: cliente.User.email,
                 telefone: cliente.telefone,
                 logradouro: getLogradouro(
                     normalizeText(cliente.logradouro),
@@ -530,7 +474,10 @@ async function salesOrder() {
 
     const pedidos = await Pedido_Venda.findAll({
         include: [
-            { model: Cliente },
+            {
+                model: Cliente,
+                include: [{ model: User, as: "User", attributes: ["email"] }]
+            },
             {
                 model: Pedido_Venda_Item,
                 include: [{ model: Produto, as: "Produto" }],
@@ -569,8 +516,6 @@ async function salesOrder() {
         try {
             const result = mapPedidoToSalesOrder(pedido)
 
-            return console.log(result)
-
             const response = await axios.post(baseUrl, result, {
                 headers: {
                     Authorization,
@@ -584,7 +529,7 @@ async function salesOrder() {
                 pedido.status = "Integrado";
                 await pedido.save();
                 console.log(
-                    "Pedido integrado Retaguarda: " + pedido.numeroPedido,
+                    "Pedido integrado Retaguarda: " + pedido.numero_pedido,
                 );
             } else {
                 console.log(response.status);
@@ -595,13 +540,13 @@ async function salesOrder() {
         } catch (error) {
             console.error(
                 "Erro ao enviar pedido:",
-                pedido.numeroPedido,
+                pedido.numero_pedido,
                 error.message,
             );
         }
     }
 }
 
-salesOrder()
+//salesOrder()
 
 module.exports = router;

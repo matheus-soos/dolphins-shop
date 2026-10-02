@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PagamentoPixComponent } from './pagamento-pix.component';
+import { PedidoSucessoComponent } from './pedido-sucesso.component';
 
-describe('PagamentoPixComponent', () => {
-  let component: PagamentoPixComponent;
-  let fixture: ComponentFixture<PagamentoPixComponent>;
+describe('PedidoSucessoComponent', () => {
+  let component: PedidoSucessoComponent;
+  let fixture: ComponentFixture<PedidoSucessoComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PagamentoPixComponent]
+      imports: [PedidoSucessoComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PagamentoPixComponent);
+    fixture = TestBed.createComponent(PedidoSucessoComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

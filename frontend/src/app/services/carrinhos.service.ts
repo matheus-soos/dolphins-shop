@@ -49,6 +49,11 @@ export class CarrinhosService {
     return this.http.get(environment.API_URL + "/carrinhos/getCarrinho/" + carrinhoId);
   }
 
+  limparCarrinhoLocal(): void {
+    localStorage.removeItem("cart");
+    this.qtdCarrinhoSubject.next(0);
+  }
+
   atualizarQuantidadeCarrinho() {
     const carrinhoId = this.getCarrinhoId();
 

@@ -50,6 +50,14 @@
                   style="border: 0; border-top: 1px solid #ddd; margin: 5px 0"
                 />
                 <li><a routerLink="admin/banners">Banners</a></li>
+                <hr
+                  style="border: 0; border-top: 1px solid #ddd; margin: 5px 0"
+                />
+                <li><a (click)="onLogout()">Logout</a></li>
+              </ul>
+            } @else {
+              <ul class="dropdown-menu">
+                <li><a (click)="onLogout()">Logout</a></li>
               </ul>
             }
           </div>

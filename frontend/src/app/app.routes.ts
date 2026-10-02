@@ -12,10 +12,10 @@ import { BuscarProdutoComponent } from './components/visualizar-produtos/buscar-
 import { ProdutoViewComponent } from './components/visualizar-produtos/produto-view/produto-view.component';
 import { CadastroComponent } from './components/login/cadastro/cadastro.component';
 import { PedidosComponent } from './components/pedidos/pedidos.component';
-import { PagamentoPixComponent } from './components/checkout/pagamento-pix/pagamento-pix.component';
 import { EntregaComponent } from './components/entrega/entrega.component';
 import { BannersComponent } from './components/banners/banners.component';
 import { SobreNosComponent } from './components/sobre-nos/sobre-nos.component';
+import { PedidoSucessoComponent } from './components/checkout/pedido-sucesso/pedido-sucesso.component';
 
 export const routes: Routes = [
     { path: "", pathMatch: "full", component: InicioComponent },
@@ -25,7 +25,7 @@ export const routes: Routes = [
     { path: "carrinho", component: CarrinhoComponent },
     { path: "entrega", component: EntregaComponent },
     { path: "checkout", component: CheckoutComponent },
-    { path: "checkout/pagamento/pix/:id", component: PagamentoPixComponent },
+    { path: "checkout/success/:id", component: PedidoSucessoComponent },
     { path: "cadastro", component: CadastroComponent },
     { path: "admin/produtos", component: ProdutosComponent },
     { path: "admin/produtos/novo-produto", component: NovoProdutoComponent },

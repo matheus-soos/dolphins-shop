@@ -30,7 +30,7 @@ router.post('/register', async (req, res, next) => {
         })
 
         const token = jwt.sign(
-            { user_id: user._id, email },
+            { user_id: user.id, email },
             process.env.TOKEN_KEY,
             {
                 expiresIn: "30d",
@@ -157,7 +157,7 @@ router.post('/cadastroCliente', async (req, res, next) => {
         const expiresIn = "30d"
 
         const token = jwt.sign(
-            { user_id: user._id, email },
+            { user_id: user.id, email },
             process.env.TOKEN_KEY,
             {
                 expiresIn: expiresIn,

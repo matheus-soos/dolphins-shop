@@ -20,7 +20,7 @@ const Pagamento = database.define('Pagamento', {
         allowNull: true
     },
     tipo_pagamento: {
-        type: DataTypes.ENUM('Pix', 'Credito'),
+        type: DataTypes.ENUM('Pix', 'Credito', 'Dinheiro'),
         allowNull: false
     },
     valor: {

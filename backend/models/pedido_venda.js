@@ -22,12 +22,12 @@ const Pedido_Venda = database.define("Pedido_Venda", {
     },
     status: {
         type: DataTypes.STRING,
-        defaultValue: "Pendente", // "Pendente", "Pago", "Integrado", "Cancelado"
+        defaultValue: "Pendente",
         allowNull: false
     },
     forma_pagamento: {
         type: DataTypes.STRING,
-        allowNull: true // Ex: "Pix", "Cartão", "Dinheiro"
+        allowNull: true
     },
     valor_total: {
         type: DataTypes.FLOAT,
@@ -46,20 +46,20 @@ const Pedido_Venda = database.define("Pedido_Venda", {
 }, {
     tableName: "Pedidos_Venda",
     hooks: {
-        beforeValidate: async (pedido) => {
-
-            // se já veio preenchido, não mexe
+        beforeValidate: async (pedido, options) => {
             if (pedido.numero_pedido) return;
 
-            const result = await database.query(
-                `SELECT nextval('pedidos_venda_numero_seq') as numero`,
-                { type: Sequelize.QueryTypes.SELECT }
-            );
+            const PedidoModel = pedido.constructor;
+            const maxNumero = await PedidoModel.max('numero_pedido', { transaction: options.transaction });
+            
+            const proximo = maxNumero ? Number(maxNumero) + 1 : 1;
 
-            pedido.numero_pedido = String(result[0].numero).padStart(6, "0");
+            console.log('Último número:', maxNumero, '| Próximo número:', proximo);
+
+            pedido.numero_pedido = String(proximo).padStart(6, '0');
+            console.log(pedido.numero_pedido)
         }
     }
-
 });
 
 module.exports = Pedido_Venda;

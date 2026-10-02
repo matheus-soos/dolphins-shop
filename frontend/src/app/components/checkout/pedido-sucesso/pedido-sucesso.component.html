@@ -1,0 +1,46 @@
+<main>
+  <app-checkout-steps [currentStep]="4"></app-checkout-steps>
+
+  <div class="wrapper" *ngIf="dadosCobranca">
+    
+    <!-- Status Global do Pedido -->
+    <div class="status-header">
+      <h2>{{ statusMsg }}</h2>
+      <p class="valor-total"><strong>Valor Total:</strong> {{ dadosCobranca.valor | currency:'BRL'}}</p>
+    </div>
+
+    <div class="pagamento-box pix-box" *ngIf="formaPagamento === 'pix'">
+      <h3>Pagamento via PIX</h3>
+
+      <ng-container *ngIf="dadosCobranca.status !== 'Paid'; else pixAprovado">
+        <img *ngIf="dadosCobranca.qrCodeBase64" 
+             [src]="'data:image/png;base64,' + dadosCobranca.qrCodeBase64" 
+             class="qr-code" 
+             alt="QR Code PIX" />
+
+        <div class="pix-code" *ngIf="dadosCobranca.qrCode">
+          <p>{{ dadosCobranca.qrCode }}</p>
+        </div>
+
+        <button (click)="copiarCodigoPix()">Copiar Código PIX</button>
+      </ng-container>
+
+      <ng-template #pixAprovado>
+        <p class="sucesso-msg">O seu pagamento PIX foi compensado e o pedido já está em processamento.</p>
+      </ng-template>
+    </div>
+
+    <div class="pagamento-box cartao-box" *ngIf="formaPagamento === 'cartao'">
+      <h3>Pagamento no Cartão</h3>
+      <p>Transação autorizada com sucesso.</p>
+      <p *ngIf="dadosCobranca.cartaoFinal">Cartão final: **** {{ dadosCobranca.cartaoFinal }}</p>
+    </div>
+
+    <div class="pagamento-box dinheiro-box" *ngIf="formaPagamento === 'dinheiro'">
+      <h3>Pagamento em Dinheiro</h3>
+      <p>Transação autorizada com sucesso.</p>
+      <p *ngIf="dadosCobranca.trocoPara"><strong>Troco para:</strong> R$ {{ dadosCobranca.trocoPara }}</p>
+    </div>
+
+  </div>
+</main>

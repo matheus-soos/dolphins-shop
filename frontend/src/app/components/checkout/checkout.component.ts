@@ -140,16 +140,21 @@ export class CheckoutComponent implements OnInit {
 
   onContinuar() {
     if (this.forma_pagamento.invalid) return;
+
+    const handleSuccess = (response: any) => {
+      this.carrinhosService.limparCarrinhoLocal();
+
+      this.router.navigate([`checkout/success/${response.pedido_id}`]);
+    };
     
     const reqBase = {
       itens: this.carrinho?.Itens_Carrinho?.map((item: any) => ({
         produto_id: item.produto_id,
-        quantidade: item.quantidade,
-        valor_unitario: item.valor_venda
+        quantidade: item.quantidade
       })),
       cep_destino: this.cep_destino,
       freteSelecionado: this.freteSelecionado,
-      // desconto_total: this.desconto_total || 0
+      cupons_aplicados: this.cupons_aplicados
     };
 
     if (this.forma_pagamento.value == "credito") {
@@ -179,12 +184,7 @@ export class CheckoutComponent implements OnInit {
           };
 
           this.checkoutService.finalizarCartao(reqObj).subscribe({
-            next: (response: any) => {
-              console.log(response);
-
-              // se o pagamento foi aprovado direto (cartão)
-              this.router.navigate([`checkout/sucesso/${response.pedido_id}`]);
-            },
+            next: handleSuccess,
             error: (err) => {
               console.error(err);
             }
@@ -198,17 +198,22 @@ export class CheckoutComponent implements OnInit {
 
     else if (this.forma_pagamento.value == "pix") {
       this.checkoutService.finalizarPix(reqBase).subscribe({
-        next: (response: any) => {
-          this.checkoutService.chargePix = response.charge;
-          this.router.navigate([`checkout/pagamento/pix/${response.charge.id}`]);
-        },
+        next: handleSuccess,
+        error: (err) => {
+          console.error(err);
+        }
+      });
+    }
+
+    else if (this.forma_pagamento.value == "dinheiro") {
+      this.checkoutService.finalizarDinheiro(reqBase).subscribe({
+        next: handleSuccess,
         error: (err) => {
           console.error(err);
         }
       });
     }
   }
-
 
   getCardBrand() {
     const numeroCartao = this.dadosCartao.controls["numero_cartao"].value

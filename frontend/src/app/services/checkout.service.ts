@@ -30,8 +30,15 @@ export class CheckoutService {
         return this.http.post(environment.API_URL + "/checkout/finalizar/pix", reqObj);
     }
 
-    getPagamento(chargeId: string) {
-        return this.http.get<any>(environment.API_URL + "/pagamentos/getPagamento/" + chargeId);
+    finalizarDinheiro(reqObj: {
+        itens: any[],
+        frete?: number,
+    }) {
+        return this.http.post(environment.API_URL + "/checkout/finalizar/dinheiro", reqObj);
+    }
+
+    getPagamento(pedidoId: string) {
+        return this.http.get<any>(environment.API_URL + "/pagamentos/getPagamento/" + pedidoId);
     }
 
     private key = 'checkout_state';

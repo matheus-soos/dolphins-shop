@@ -160,4 +160,8 @@ export class AppComponent implements OnInit {
       queryParams: { t: text },
     });
   }
+
+  onLogout() {
+    this.authService.logout()
+  }
 }
