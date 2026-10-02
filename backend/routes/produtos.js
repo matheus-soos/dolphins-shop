@@ -114,7 +114,7 @@ router.get("/buscaProdutos", async (req, res, next) => {
         const produtos = await Produto.findAll({
             where: Sequelize.where(
                 Sequelize.fn('unaccent', Sequelize.col('nome')), {
-                [Op.iLike]: `%${text}%`
+                [Op.like]: `%${text}%`
             }),
             order: [['nome', 'ASC']]
         })
