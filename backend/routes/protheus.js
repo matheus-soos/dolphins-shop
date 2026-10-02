@@ -6,7 +6,9 @@ const Cliente = require("../models/cliente");
 const Categoria = require("../models/categoria");
 const Subcategoria = require("../models/subcategoria");
 // const Municipio = require("../model/municipio");
+const Pagamento = require("../models/pagamento")
 const Pedido_Venda = require("../models/pedido_venda");
+const Pedido_Venda_Item = require("../models/pedido_venda_item")
 
 dotenv.config();
 const slugify = require("slugify");
