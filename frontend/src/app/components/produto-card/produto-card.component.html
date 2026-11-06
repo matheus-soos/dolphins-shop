@@ -1,6 +1,9 @@
-<div class="produto" (click)="visualizarProduto()">
+<div class="produto" [class.esgotado]="esgotado" (click)="visualizarProduto()">
     <div class="image">
-        <img [src]="produto.img" alt="">
+        <img [src]="produto.img || semImagem" [alt]="produto.nome" loading="lazy" (error)="onImagemErro($event)">
+        @if (esgotado) {
+            <span class="badge-esgotado">Esgotado</span>
+        }
     </div>
 
     <div class="info">
@@ -9,7 +12,7 @@
         </div>
         <div class="info-row">
             <p>{{produto.valor_venda | currency: 'BRL'}}</p>
-            <button mat-icon-button (click)="adicionarCarrinho(produto); $event.stopPropagation()">
+            <button mat-icon-button [disabled]="esgotado" (click)="adicionarCarrinho(produto); $event.stopPropagation()">
                 <mat-icon>shopping_bag</mat-icon>
             </button>
         </div>

@@ -9,6 +9,7 @@ const Pagamento = require("../models/pagamento")
 const Pedido_Venda = require("../models/pedido_venda");
 const Pedido_Venda_Item = require("../models/pedido_venda_item")
 const User = require("../models/user");
+const Produto_Imagem = require("../models/produto_imagem");
 
 dotenv.config();
 const slugify = require("slugify");
@@ -193,10 +194,25 @@ router.post("/sincronizarImagens", async (req, res, next) => {
                             "base64",
                         );
 
-                        await Produto.update(
-                            { imgPath: "uploads/productImages/" + fileName },
-                            { where: { id: p.id } },
-                        );
+                        // Registra na galeria (Produto_Imagens). Se o produto ainda
+                        // não tem imagem principal, a do Protheus vira a principal.
+                        const caminho = "uploads/productImages/" + fileName;
+                        const jaExiste = await Produto_Imagem.findOne({
+                            where: { produto_id: p.id, path: caminho },
+                        });
+
+                        if (!jaExiste) {
+                            const temPrincipal = await Produto_Imagem.count({
+                                where: { produto_id: p.id, principal: true },
+                            });
+
+                            await Produto_Imagem.create({
+                                produto_id: p.id,
+                                path: caminho,
+                                ordem: 0,
+                                principal: !temPrincipal,
+                            });
+                        }
 
                         resultados.push({
                             id: p.id,

@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken");
 const Cliente = require("../models/cliente");
 const auth = require("../middleware/auth")
+const database = require("../config/database")
 
 router.post('/register', async (req, res, next) => {
     try {
@@ -55,7 +56,8 @@ router.post('/register', async (req, res, next) => {
 
 router.post('/login', async (req, res, next) => {
     try {
-        const { email, password, keep_login } = req.body
+        const { password, keep_login } = req.body
+        const email = (req.body.email || "").trim().toLowerCase()
 
         if (!(email && password)) {
             return res.status(400).send("Preencha os campos obrigatórios")
@@ -115,36 +117,88 @@ router.get("/getUser/:id", auth, async (req, res, next) => {
     }
 })
 
+/**
+ * Converte a data de nascimento vinda do front para 'YYYY-MM-DD' (DATEONLY).
+ * Aceita 'YYYY-MM-DD', 'DD/MM/YYYY' ou ISO completo. Retorna:
+ *  - null se vier vazia (campo é opcional)
+ *  - undefined se for inválida
+ */
+function parseDataNascimento(valor) {
+    if (valor === null || valor === undefined || String(valor).trim() === "") {
+        return null
+    }
+
+    const texto = String(valor).trim()
+    let ano, mes, dia
+
+    let m = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+    if (m) {
+        [, dia, mes, ano] = m
+    } else if ((m = texto.match(/^(\d{4})-(\d{2})-(\d{2})/))) {
+        [, ano, mes, dia] = m
+    } else {
+        return undefined
+    }
+
+    ano = Number(ano); mes = Number(mes); dia = Number(dia)
+
+    // Valida dia/mês reais (ex.: 31/02 é inválido)
+    const data = new Date(Date.UTC(ano, mes - 1, dia))
+    if (data.getUTCFullYear() !== ano || data.getUTCMonth() !== mes - 1 || data.getUTCDate() !== dia) {
+        return undefined
+    }
+
+    const hoje = new Date()
+    if (data > hoje || ano < hoje.getFullYear() - 120) {
+        return undefined
+    }
+
+    return `${String(ano).padStart(4, "0")}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`
+}
+
 router.post('/cadastroCliente', async (req, res, next) => {
+    const { password, nome, cpf, telefone, dataNascimento, cep, logradouro, numero, complemento, bairro, cidade, estado, } = req.body
+    const email = (req.body.email || "").trim().toLowerCase()
+
+    if (!(email && password)) {
+        return res.status(400).send("Preencha os campos obrigatórios")
+    }
+
+    const data_nascimento = parseDataNascimento(dataNascimento)
+
+    if (data_nascimento === undefined) {
+        return res.status(400).send("Data de nascimento inválida")
+    }
+
+    // Usuário + cliente na mesma transação: se o cliente falhar, o usuário
+    // não fica "órfão" (antes isso bloqueava o novo cadastro com "Usuário já existente")
+    const transaction = await database.transaction()
+
     try {
-        const { email, password, nome, cpf, telefone, dataNascimento, cep, logradouro, numero, complemento, bairro, cidade, estado, } = req.body
-
-        if (!(email && password)) {
-            return res.status(400).send("Preencha os campos obrigatórios")
-        }
-
         const oldUser = await User.findOne({
-            where: { email: email }
+            where: { email: email },
+            transaction
         })
 
         if (oldUser) {
+            await transaction.rollback()
             return res.status(409).send("Usuário já existente")
         }
 
         const hash = await bcrypt.hash(password, 10)
 
         const user = await User.create({
-            email: email.toLowerCase(),
+            email: email,
             password: hash,
             isAdmin: false
-        })
+        }, { transaction })
 
         const cliente = await Cliente.create({
             user_id: user.id,
             nome: nome,
             cpf: cpf,
             telefone: telefone,
-            data_nascimento: new Date(dataNascimento),
+            data_nascimento,
             cep,
             logradouro,
             numero,
@@ -152,7 +206,9 @@ router.post('/cadastroCliente', async (req, res, next) => {
             bairro,
             cidade,
             estado,
-        })
+        }, { transaction })
+
+        await transaction.commit()
 
         const expiresIn = "30d"
 
@@ -176,6 +232,7 @@ router.post('/cadastroCliente', async (req, res, next) => {
         })
     }
     catch (err) {
+        await transaction.rollback()
         console.log(err)
         res.status(400).json({ err })
     }

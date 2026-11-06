@@ -1,8 +1,17 @@
 const Carrinho = require('../models/carrinho')
 const Item_Carrinho = require('../models/item_carrinho')
 const Produto = require('../models/produto')
+const Produto_Imagem = require('../models/produto_imagem')
+const { getQuantidadesReservadas, calcularSaldoDisponivel } = require('../services/estoqueService')
 
 const router = require('express').Router()
+
+const includeImagemPrincipal = {
+    model: Produto_Imagem,
+    as: "ImagemPrincipal",
+    attributes: ["id", "path"],
+    required: false
+}
 
 router.post("/criarCarrinho", async (req, res, next) => {
     const { user_id } = req.body
@@ -18,7 +27,7 @@ router.post("/criarCarrinho", async (req, res, next) => {
                     model: Item_Carrinho,
                     as: "Itens_Carrinho",
 
-                    include: [{ model: Produto, as: "Produto" }]
+                    include: [{ model: Produto, as: "Produto", include: [includeImagemPrincipal] }]
                 }
             ],
             order: [
@@ -43,7 +52,7 @@ router.get("/getCarrinho/:id", async (req, res, next) => {
                     model: Item_Carrinho,
                     as: "Itens_Carrinho",
 
-                    include: [{ model: Produto, as: "Produto" }]
+                    include: [{ model: Produto, as: "Produto", include: [includeImagemPrincipal] }]
                 }
             ],
             order: [
@@ -58,12 +67,33 @@ router.get("/getCarrinho/:id", async (req, res, next) => {
 })
 
 router.post("/adicionarItem", async (req, res, next) => {
-    const { carrinho_id, produto_id, quantidade = 1 } = req.body;
+    const { carrinho_id, produto_id } = req.body;
+    const quantidade = Math.max(1, Math.floor(Number(req.body.quantidade) || 1));
 
     try {
         const itemExistente = await Item_Carrinho.findOne({
             where: { carrinho_id, produto_id }
         });
+
+        // Valida saldo disponível (saldo - reservas de pedidos em aberto)
+        const produto = await Produto.findByPk(produto_id);
+
+        if (!produto) {
+            return res.status(404).json({ error: "Produto não encontrado." });
+        }
+
+        const reservas = await getQuantidadesReservadas([produto.id]);
+        const disponivel = calcularSaldoDisponivel(produto, reservas);
+        const qtdNoCarrinho = Number(itemExistente?.quantidade || 0);
+
+        if (qtdNoCarrinho + quantidade > disponivel) {
+            return res.status(409).json({
+                error: disponivel <= 0
+                    ? "Produto sem estoque no momento."
+                    : `Quantidade indisponível. Restam ${disponivel} unidade(s) em estoque.`,
+                disponivel
+            });
+        }
 
         if (itemExistente) {
             itemExistente.quantidade += quantidade;
@@ -82,7 +112,7 @@ router.post("/adicionarItem", async (req, res, next) => {
                     model: Item_Carrinho,
                     as: "Itens_Carrinho",
 
-                    include: [{ model: Produto, as: "Produto" }]
+                    include: [{ model: Produto, as: "Produto", include: [includeImagemPrincipal] }]
                 }
             ],
             order: [
@@ -120,7 +150,7 @@ router.post("/removerItem", async (req, res, next) => {
                 {
                     model: Item_Carrinho,
                     as: "Itens_Carrinho",
-                    include: [{ model: Produto, as: "Produto" }]
+                    include: [{ model: Produto, as: "Produto", include: [includeImagemPrincipal] }]
                 }
             ],
             order: [

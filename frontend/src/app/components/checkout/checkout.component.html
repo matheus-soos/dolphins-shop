@@ -87,7 +87,7 @@
                             <p>{{valor_frete | currency: 'BRL'}}</p>
                         </div>
                         <div class="text">
-                            <p>Descontos:</p>
+                            <p>Descontos<span *ngIf="cupom"> ({{ cupom.codigo }})</span>:</p>
                             <p>{{valor_desconto | currency: 'BRL'}}</p>
                         </div>
 
@@ -99,7 +99,9 @@
                 </div>
 
                 <div class="buttons">
-                    <button type="submit" mat-button (click)="onContinuar()">Continuar</button>
+                    <button type="submit" mat-button (click)="onContinuar()" [disabled]="enviando">
+                        {{ enviando ? 'Processando...' : 'Continuar' }}
+                    </button>
 
                     <a routerLink="/carrinho">Voltar</a>
                 </div>

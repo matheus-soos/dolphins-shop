@@ -29,10 +29,30 @@ export class ProdutoCardComponent {
     private router: Router
   ) { }
 
-  adicionarCarrinho(produto: any) {
-    this.carrinhosService.adicionarItem(produto.id)
+  readonly semImagem = ProdutosService.SEM_IMAGEM
 
-    this.dialog.open(AdicionarCarrinhoComponent)
+  /** saldo_disponivel vem do backend; se não vier, não bloqueia */
+  get esgotado(): boolean {
+    const saldo = this.produto?.saldo_disponivel ?? this.produto?.saldo
+    return saldo !== undefined && saldo !== null && Number(saldo) <= 0
+  }
+
+  adicionarCarrinho(produto: any) {
+    if (this.esgotado) return
+
+    this.carrinhosService.adicionarItem(produto.id)
+      .then(() => this.dialog.open(AdicionarCarrinhoComponent))
+      .catch((err: any) => {
+        console.error(err)
+        alert(err?.error?.error || 'Não foi possível adicionar ao carrinho.')
+      })
+  }
+
+  onImagemErro(event: Event) {
+    const img = event.target as HTMLImageElement
+    if (!img.src.endsWith(this.semImagem)) {
+      img.src = this.semImagem
+    }
   }
 
   visualizarProduto() {

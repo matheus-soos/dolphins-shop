@@ -77,6 +77,7 @@ export class NovoProdutoComponent implements OnInit {
       subcategoria: [{ value: '', disabled: true }, Validators.required],
       valor_custo: [''],
       valor_venda: ['', Validators.required],
+      saldo: [0, [Validators.min(0)]],
       // ncm: ['', Validators.required],
       // cest: [''],
       // cfop: ['', Validators.required],
@@ -122,6 +123,7 @@ export class NovoProdutoComponent implements OnInit {
       formData.append('subcategoria_id', this.formProduto.controls['subcategoria'].value)
       formData.append('valor_custo', this.formProduto.controls['valor_custo'].value)
       formData.append('valor_venda', this.formProduto.controls['valor_venda'].value)
+      formData.append('saldo', this.formProduto.controls['saldo'].value ?? 0)
       // formData.append('ncm', this.ncmValue)
       // formData.append('cfop', this.cfopValue)
       // formData.append('cest', this.formProduto.controls['cest'].value)

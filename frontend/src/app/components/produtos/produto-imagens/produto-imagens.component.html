@@ -1,0 +1,61 @@
+<h2 mat-dialog-title>
+  <mat-icon>photo_library</mat-icon>
+  Imagens — {{ produto?.nome }}
+</h2>
+
+<mat-dialog-content>
+  <div class="section-title">
+    <span>A imagem marcada com <mat-icon inline>star</mat-icon> é a principal (aparece nos cards e no carrinho).</span>
+    <span class="limit">{{ totalImagens }} / {{ maxImagens }}</span>
+  </div>
+
+  <div class="preview-grid">
+    @for (imagem of imagens; track imagem.id ?? imagem.path) {
+      <mat-card class="preview-card" [class.principal]="imagem.principal">
+        <img mat-card-image [src]="imagem.url" alt="" />
+
+        <div class="card-actions">
+          <button mat-icon-button (click)="definirPrincipal(imagem)" [disabled]="!imagem.id"
+            [matTooltip]="imagem.principal ? 'Imagem principal' : 'Definir como principal'">
+            <mat-icon>{{ imagem.principal ? 'star' : 'star_border' }}</mat-icon>
+          </button>
+
+          <button mat-icon-button color="warn" (click)="remover(imagem)" [disabled]="!imagem.id" matTooltip="Remover">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </mat-card>
+    }
+
+    @for (nova of novas; track $index; let i = $index) {
+      <mat-card class="preview-card nova">
+        <img mat-card-image [src]="nova.preview" alt="" />
+        <span class="tag">Nova</span>
+
+        <button mat-icon-button color="warn" class="remove-btn" (click)="removerNova(i)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card>
+    }
+
+    @if (!imagens.length && !novas.length) {
+      <p class="empty">Nenhuma imagem cadastrada para este produto.</p>
+    }
+  </div>
+
+  <input #fileInput type="file" multiple hidden accept="image/*" (change)="onFileSelected($event)" />
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="fileInput.click()" [disabled]="totalImagens >= maxImagens">
+    <mat-icon>upload</mat-icon>
+    Escolher Imagens
+  </button>
+
+  <button mat-flat-button color="primary" (click)="salvar()" [disabled]="!novas.length || carregando">
+    <mat-icon>save</mat-icon>
+    {{ carregando ? 'Enviando...' : 'Salvar' }}
+  </button>
+
+  <button mat-button (click)="fechar()">Fechar</button>
+</mat-dialog-actions>

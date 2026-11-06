@@ -42,7 +42,8 @@ export class PedidoSucessoComponent implements OnInit, OnDestroy {
 
         // Identifica o método de pagamento a partir do retorno da API
         // Ajuste os nomes das propriedades conforme a estrutura real do seu backend
-        this.formaPagamento = pagamento.metodo || tx.paymentMethod || 'pix';
+        const mapaFormas: Record<string, string> = { Pix: 'pix', Credito: 'cartao', Dinheiro: 'dinheiro' };
+        this.formaPagamento = mapaFormas[pagamento.tipo_pagamento] || tx.paymentMethod || 'pix';
 
         this.dadosCobranca = {
           valor: tx.amount || resp.charge?.amount,

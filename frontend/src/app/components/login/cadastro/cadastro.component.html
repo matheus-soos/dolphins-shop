@@ -28,10 +28,18 @@
             <div class="form-row">
                 <mat-form-field appearance="outline">
                     <mat-label>Data de nascimento</mat-label>
-                    <input matInput [matDatepicker]="picker" formControlName="dataNascimento">
-                    <mat-hint>DD/MM/YYYY</mat-hint>
+                    <input matInput [matDatepicker]="picker" formControlName="dataNascimento"
+                        [max]="maxDataNascimento" [min]="minDataNascimento" placeholder="DD/MM/AAAA">
+                    <mat-hint>DD/MM/AAAA</mat-hint>
                     <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                    <mat-datepicker #picker></mat-datepicker>
+                    <mat-datepicker #picker startView="multi-year" [startAt]="startDataNascimento"></mat-datepicker>
+                    @if (formUser.get('dataNascimento')?.hasError('matDatepickerParse')) {
+                        <mat-error>Data inválida. Use o formato DD/MM/AAAA.</mat-error>
+                    } @else if (formUser.get('dataNascimento')?.hasError('matDatepickerMax')) {
+                        <mat-error>A data não pode ser no futuro.</mat-error>
+                    } @else if (formUser.get('dataNascimento')?.hasError('matDatepickerMin')) {
+                        <mat-error>Data de nascimento inválida.</mat-error>
+                    }
                 </mat-form-field>
             </div>
         </fieldset>

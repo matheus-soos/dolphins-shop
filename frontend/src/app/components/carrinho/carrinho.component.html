@@ -95,6 +95,17 @@
 
                             <button mat-button (click)="onAplicarCupom()">Aplicar</button>
                         </div>
+
+                        <div class="cupom-aplicado" *ngIf="cupomAplicado">
+                            <mat-icon>sell</mat-icon>
+                            <span>
+                                <strong>{{ cupomAplicado.codigo }}</strong>
+                                ({{ cupomAplicado.tipo === 'percentual' ? (cupomAplicado.valor + '%') : (+cupomAplicado.valor | currency: 'BRL') }})
+                            </span>
+                            <button mat-icon-button (click)="onRemoverCupom()" aria-label="Remover cupom">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="valor">

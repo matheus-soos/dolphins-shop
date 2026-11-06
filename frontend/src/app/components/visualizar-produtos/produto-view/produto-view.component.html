@@ -11,33 +11,71 @@
         </div>
 
         <div class="product-container">
-            <div class="product-image">
-                <img [src]="produto?.img" alt="{{produto?.nome}}">
+            <div class="product-gallery">
+                <div class="main-image">
+                    <img [src]="imagens[imagemAtual] || semImagem" alt="{{produto?.nome}}" (error)="onImagemErro($event)">
+
+                    @if (imagens.length > 1) {
+                        <button mat-icon-button class="nav prev" (click)="imagemAnterior()" aria-label="Imagem anterior">
+                            <mat-icon>chevron_left</mat-icon>
+                        </button>
+                        <button mat-icon-button class="nav next" (click)="proximaImagem()" aria-label="Próxima imagem">
+                            <mat-icon>chevron_right</mat-icon>
+                        </button>
+                        <span class="counter">{{ imagemAtual + 1 }} / {{ imagens.length }}</span>
+                    }
+                </div>
+
+                @if (imagens.length > 1) {
+                    <div class="thumbnails">
+                        @for (img of imagens; track img; let i = $index) {
+                            <button class="thumb" [class.active]="i === imagemAtual" (click)="selecionarImagem(i)"
+                                [attr.aria-label]="'Ver imagem ' + (i + 1)">
+                                <img [src]="img" alt="" (error)="onImagemErro($event)">
+                            </button>
+                        }
+                    </div>
+                }
             </div>
 
             <div class="product-info">
                 <h1>{{produto?.nome}}</h1>
 
-                <p class="description">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                    venenatis risus at mauris feugiat, at sagittis nisi lacinia. Sed
-                    tristique nibh vel velit pretium, vel rutrum erat vulputate.
-                </p>
+                @if (produto?.cod_produto) {
+                    <span class="sku">Cód.: {{ produto.cod_produto }}</span>
+                }
 
                 <p class="price">{{produto?.valor_venda | currency:'BRL'}}</p>
 
+                @if (produto) {
+                    @if (semEstoque) {
+                        <span class="stock out">Produto esgotado</span>
+                    } @else if (estoqueDisponivel <= 5) {
+                        <span class="stock low">Últimas {{ estoqueDisponivel }} unidade(s) em estoque</span>
+                    } @else {
+                        <span class="stock in">Em estoque</span>
+                    }
+                }
+
                 <div class="action-row">
-                    <div class="quantity-control">
+                    <div class="quantity-control" [class.disabled]="semEstoque">
                         <mat-icon class="icon" (click)="removerQuantidade()">remove</mat-icon>
                         <p>{{quantidade}}</p>
                         <mat-icon class="icon" (click)="adicionarQuantidade()">add</mat-icon>
                     </div>
 
-                    <button mat-raised-button color="primary" (click)="adicionarCarrinho()">
+                    <button mat-raised-button color="primary" (click)="adicionarCarrinho()" [disabled]="semEstoque">
                         <mat-icon>shopping_bag</mat-icon>
-                        Adicionar ao Carrinho
+                        {{ semEstoque ? 'Indisponível' : 'Adicionar ao Carrinho' }}
                     </button>
                 </div>
+
+                @if (descricao) {
+                    <div class="description">
+                        <h3>Descrição</h3>
+                        <p>{{ descricao }}</p>
+                    </div>
+                }
             </div>
         </div>
 

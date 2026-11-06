@@ -41,6 +41,10 @@
 
             @if (usersService.isAdmin()) {
               <ul class="dropdown-menu">
+                <li><a routerLink="meus-pedidos">Meus Pedidos</a></li>
+                <hr
+                  style="border: 0; border-top: 1px solid #ddd; margin: 5px 0"
+                />
                 <li><a routerLink="admin/produtos">Produtos</a></li>
                 <li><a routerLink="admin/categorias">Categorias</a></li>
                 <li><a routerLink="admin/users">Usuários</a></li>
@@ -57,6 +61,7 @@
               </ul>
             } @else {
               <ul class="dropdown-menu">
+                <li><a routerLink="meus-pedidos">Meus Pedidos</a></li>
                 <li><a (click)="onLogout()">Logout</a></li>
               </ul>
             }

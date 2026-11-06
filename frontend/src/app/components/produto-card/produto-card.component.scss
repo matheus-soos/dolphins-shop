@@ -17,9 +17,22 @@
   }
 
   .image {
+    position: relative;
     width: 100%;
     height: 200px;
     overflow: hidden;
+
+    .badge-esgotado {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 2px 10px;
+      border-radius: 10px;
+      background-color: #c62828;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+    }
 
     img {
       width: 100%;
@@ -72,5 +85,15 @@
         font-size: 20px;
       }
     }
+  }
+}
+
+.produto.esgotado {
+  .image img {
+    opacity: 0.55;
+  }
+
+  .info-row button {
+    background-color: #bdbdbd;
   }
 }

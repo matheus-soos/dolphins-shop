@@ -11,6 +11,7 @@ async function defineModels() {
     const Pedido_Venda = require("./pedido_venda")
     const Pagamento = require("./pagamento")
     const Pedido_Venda_Item = require("./pedido_venda_item")
+    const Produto_Imagem = require("./produto_imagem")
 
     // Subcategoria 1:n Produto
     Categoria.hasMany(Produto, {
@@ -97,6 +98,23 @@ async function defineModels() {
     Produto.hasMany(Pedido_Venda_Item, {
         foreignKey: "produto_id",
         as: "ItensPedido"
+    });
+
+    // Produto 1:n Produto_Imagem (galeria de imagens)
+    Produto.hasMany(Produto_Imagem, {
+        foreignKey: "produto_id",
+        as: "Imagens"
+    });
+    Produto_Imagem.belongsTo(Produto, {
+        foreignKey: "produto_id",
+        as: "Produto"
+    });
+
+    // Atalho para a imagem principal (usado nas listagens, cards, carrinho e pedidos)
+    Produto.hasOne(Produto_Imagem, {
+        foreignKey: "produto_id",
+        as: "ImagemPrincipal",
+        scope: { principal: true }
     });
 
     Cliente.hasMany(Pedido_Venda, { foreignKey: "cliente_id" })

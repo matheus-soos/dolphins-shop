@@ -9,8 +9,9 @@ import { MatInputModule } from '@angular/material/input';
 import { UsersService } from '../../../services/users.service';
 import { HttpClient } from '@angular/common/http';
 import { NgxMaskDirective } from 'ngx-mask';
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
-import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter } from '@angular/material-moment-adapter';
+import moment, { Moment } from 'moment';
 import { AuthService } from '../../../services/auth.service';
 
 export const MY_DATE_FORMATS = {
@@ -35,11 +36,12 @@ export const MY_DATE_FORMATS = {
     CommonModule,
     MatIconModule,
     NgxMaskDirective,
-    MatDatepickerModule,
-    MatNativeDateModule
+    MatDatepickerModule
   ],
   providers: [
-    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
+    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS] },
+    // strict: não aceita datas "meio digitadas" (ex.: 31/02) como válidas
+    { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { strict: true } },
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
     { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
   ],
@@ -57,6 +59,10 @@ export class CadastroComponent {
   ) { }
 
   formUser!: FormGroup
+  // Data de nascimento: não pode ser futura nem absurda
+  maxDataNascimento = moment().endOf('day')
+  minDataNascimento = moment().subtract(120, 'years').startOf('day')
+  startDataNascimento = moment().subtract(30, 'years')
   showPass: boolean = false
   showConfirmPass: boolean = false
 
@@ -98,7 +104,9 @@ export class CadastroComponent {
       nome: formData.nome,
       cpf: formData.cpf,
       telefone: formData.telefone,
-      dataNascimento: formData.dataNascimento,
+      // Envia só a data (YYYY-MM-DD), sem horário/fuso — antes ia como
+      // objeto moment/ISO e o dia podia "voltar" 1 ao salvar no banco
+      dataNascimento: this.formatarDataNascimento(formData.dataNascimento),
       cep: formData.cep,
       logradouro: formData.logradouro,
       numero: formData.numero,
@@ -116,9 +124,18 @@ export class CadastroComponent {
       },
       error: (err) => {
         console.error(err);
-        alert("Erro ao criar usuário. Tente novamente.");
+        const msg = typeof err?.error === 'string' ? err.error : "Erro ao criar usuário. Tente novamente.";
+        alert(msg);
       }
     });
+  }
+
+  formatarDataNascimento(valor: Moment | Date | string | null): string | null {
+    if (!valor) return null
+
+    const data = moment.isMoment(valor) ? valor : moment(valor, ['DD/MM/YYYY', 'YYYY-MM-DD', moment.ISO_8601], true)
+
+    return data.isValid() ? data.format('YYYY-MM-DD') : null
   }
 
 

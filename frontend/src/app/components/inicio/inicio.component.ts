@@ -69,7 +69,7 @@ export class InicioComponent implements OnInit {
     this.produtosService.getProdutos().subscribe((response) => {
       const produtos = response.produtos;
       produtos.forEach((produto: any) => {
-        produto.img = this.produtosService.getImageURL(produto.imgPath);
+        produto.img = this.produtosService.getImagemPrincipalURL(produto);
       });
 
       this.produtos = produtos;

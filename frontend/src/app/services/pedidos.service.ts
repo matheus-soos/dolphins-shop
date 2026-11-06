@@ -20,6 +20,14 @@ export class PedidosService {
     return this.http.get(environment.API_URL + "/pedidos/getPedidos")
   }
 
+  getMeusPedidos(): Observable<any> {
+    return this.http.get(environment.API_URL + "/pedidos/meusPedidos")
+  }
+
+  getMeuPedido(pedido_id: number): Observable<any> {
+    return this.http.get(environment.API_URL + "/pedidos/meusPedidos/" + pedido_id)
+  }
+
   getPedido(pedido_id: number): Observable<any> {
     return this.http.get(environment.API_URL + "/pedidos/getPedido/" + pedido_id)
   }

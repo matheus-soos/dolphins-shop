@@ -73,7 +73,7 @@ export class VisualizarProdutosComponent {
         const produtos: any[] = res.produtos
 
         produtos.forEach((produto) => {
-          produto.img = this.produtosService.getImageURL(produto.imgPath)
+          produto.img = this.produtosService.getImagemPrincipalURL(produto)
         })
 
         this.produtos = produtos

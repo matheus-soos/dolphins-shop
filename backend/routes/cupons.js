@@ -1,4 +1,5 @@
 const Cupom = require('../models/cupom')
+const { verificarCupom, calcularDescontoCupom } = require('../services/cupomService')
 
 const router = require('express').Router()
 
@@ -23,34 +24,27 @@ router.post("/novoCupom", async (req, res, next) => {
 })
 
 router.post("/validarCupom", async (req, res) => {
-    const { codigo } = req.body
+    const codigo = (req.body.codigo || "").trim()
+    const { subtotal } = req.body
+
+    if (!codigo) {
+        return res.status(400).json({ success: false, message: "Informe o código do cupom" })
+    }
 
     try {
         const cupom = await Cupom.findOne({ where: { codigo } })
 
-        if (!cupom) {
-            return res.status(400).json({ success: false, message: "Cupom não encontrado" })
+        const erro = verificarCupom(cupom)
+
+        if (erro) {
+            return res.status(400).json({ success: false, message: erro })
         }
 
-        const today = new Date()
+        // Se o front mandar o subtotal, já devolve o desconto calculado
+        // com a mesma regra usada no checkout
+        const desconto = subtotal != null ? calcularDescontoCupom(cupom, subtotal) : undefined
 
-        if (!cupom.ativo) {
-            return res.status(400).json({ success: false, message: "Cupom inativo" })
-        }
-
-        if (cupom.data_inicio && new Date(cupom.data_inicio) > today) {
-            return res.status(400).json({ success: false, message: "Cupom ainda não está válido" })
-        }
-
-        if (cupom.data_fim && new Date(cupom.data_fim) < today) {
-            return res.status(400).json({ success: false, message: "Cupom expirado" })
-        }
-
-        if (cupom.quantidade_uso <= 0) {
-            return res.status(400).json({ success: false, message: "Limite de uso do cupom atingido" })
-        }
-
-        return res.json({ success: true, cupom })
+        return res.json({ success: true, cupom, desconto })
     } catch (error) {
         console.error(error)
         res.status(500).json({ success: false, message: "Erro ao verificar o cupom", error })

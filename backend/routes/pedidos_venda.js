@@ -4,15 +4,118 @@ const Pagamento = require("../models/pagamento")
 const Pedido_Venda = require('../models/pedido_venda')
 const Pedido_Venda_Item = require("../models/pedido_venda_item")
 const Produto = require("../models/produto")
+const Cupom = require("../models/cupom")
+const Produto_Imagem = require("../models/produto_imagem")
+const auth = require("../middleware/auth")
 
 router.get("/getPedidos", async (req, res) => {
     try {
         const pedidos = await Pedido_Venda.findAll({
+            include: [{ model: Cliente, attributes: ["id", "nome"] }],
             order: [["id", "DESC"]]
         })
 
         res.json({ success: true, pedidos })
     } catch (error) {
+        res.status(400).json({ error: error.message })
+    }
+})
+
+/* =========================================================
+ * MEUS PEDIDOS (área do cliente logado)
+ * Sempre filtra pelo cliente do token — o cliente nunca vê pedido de outro.
+ * ========================================================= */
+
+const ATRIBUTOS_PAGAMENTO_CLIENTE = [
+    "id",
+    "tipo_pagamento",
+    "valor",
+    "status",
+    "bandeira",
+    "parcelas",
+    "data_transacao",
+    "createdAt"
+]
+
+const includeItensPedido = {
+    model: Pedido_Venda_Item,
+    include: [{
+        model: Produto,
+        as: "Produto",
+        attributes: ["id", "nome", "cod_produto"],
+        include: [{
+            model: Produto_Imagem,
+            as: "ImagemPrincipal",
+            attributes: ["id", "path"],
+            required: false
+        }]
+    }]
+}
+
+async function getClienteLogado(req) {
+    return Cliente.findOne({ where: { user_id: req.user.user_id } })
+}
+
+router.get("/meusPedidos", auth, async (req, res) => {
+    try {
+        const cliente = await getClienteLogado(req)
+
+        if (!cliente) {
+            return res.json({ success: true, pedidos: [] })
+        }
+
+        const pedidos = await Pedido_Venda.findAll({
+            where: { cliente_id: cliente.id },
+            include: [
+                includeItensPedido,
+                { model: Pagamento, attributes: ATRIBUTOS_PAGAMENTO_CLIENTE }
+            ],
+            order: [["id", "DESC"]]
+        })
+
+        res.json({ success: true, pedidos })
+    } catch (error) {
+        console.error(error)
+        res.status(400).json({ error: error.message })
+    }
+})
+
+router.get("/meusPedidos/:id", auth, async (req, res) => {
+    try {
+        const cliente = await getClienteLogado(req)
+
+        const pedido = cliente && await Pedido_Venda.findOne({
+            where: { id: req.params.id, cliente_id: cliente.id },
+            include: [
+                includeItensPedido,
+                { model: Pagamento, attributes: ATRIBUTOS_PAGAMENTO_CLIENTE }
+            ]
+        })
+
+        if (!pedido) {
+            return res.status(404).json({ success: false, message: "Pedido não encontrado" })
+        }
+
+        const json = pedido.toJSON()
+
+        if (pedido.cupom_id) {
+            const cupom = await Cupom.findByPk(pedido.cupom_id, { attributes: ["codigo"] })
+            json.cupom_codigo = cupom?.codigo
+        }
+
+        json.endereco = {
+            logradouro: cliente.logradouro,
+            numero: cliente.numero,
+            complemento: cliente.complemento,
+            bairro: cliente.bairro,
+            cidade: cliente.cidade,
+            estado: cliente.estado,
+            cep: cliente.cep
+        }
+
+        res.json({ success: true, pedido: json })
+    } catch (error) {
+        console.error(error)
         res.status(400).json({ error: error.message })
     }
 })

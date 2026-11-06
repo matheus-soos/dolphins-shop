@@ -59,9 +59,14 @@ export class CarrinhoComponent implements OnInit {
   cupom = new FormControl('')
   mensagemErroCupom: string | null = null;
   mensagemSucessoCupom: string | null = null;
-  valor_desconto: number = 0
   valor_frete: number = 0
-  cupons_aplicados: any[] = []
+  // Apenas UM cupom por pedido (o backend também valida isso)
+  cupomAplicado: any = null
+
+  /** Desconto sempre recalculado sobre o subtotal atual (se o carrinho mudar, o desconto acompanha) */
+  get valor_desconto(): number {
+    return this.cuponsService.calcularDesconto(this.cupomAplicado, this.getSubtotal())
+  }
 
   ngOnInit(): void {
     this.getCarrinho()
@@ -74,6 +79,12 @@ export class CarrinhoComponent implements OnInit {
       if (cep) {
         this.cep_destino.setValue(cep)
       }
+
+      if (checkout_json.cupom) {
+        this.cupomAplicado = checkout_json.cupom
+        this.cupom.setValue(checkout_json.cupom.codigo)
+        this.mensagemSucessoCupom = 'Cupom aplicado com sucesso!'
+      }
     }
   }
 
@@ -83,8 +94,8 @@ export class CarrinhoComponent implements OnInit {
         const carrinho = response.carrinho || response;
 
         carrinho?.Itens_Carrinho?.forEach((item: any) => {
-          if (item.Produto?.imgPath) {
-            item.Produto.img = this.produtosService.getImageURL(item.Produto.imgPath);
+          if (item.Produto) {
+            item.Produto.img = this.produtosService.getImagemPrincipalURL(item.Produto);
           }
         });
 
@@ -106,7 +117,8 @@ export class CarrinhoComponent implements OnInit {
       })
       .catch((error) => {
         console.error(error);
-        alert("Erro Encontrado. Tente novamente.");
+        // 409 = sem saldo em estoque
+        alert(error?.error?.error || "Erro Encontrado. Tente novamente.");
       });
   }
 
@@ -189,46 +201,58 @@ export class CarrinhoComponent implements OnInit {
   }
 
   onAplicarCupom() {
-    const codigo = this.cupom.value
+    const codigo = (this.cupom.value || '').trim()
+
+    if (!codigo) return
+
+    // Bloqueia aplicar o mesmo cupom de novo
+    if (this.cupomAplicado && this.cupomAplicado.codigo?.toLowerCase() === codigo.toLowerCase()) {
+      this.mensagemSucessoCupom = null
+      this.cupom.setErrors({ apiError: 'Este cupom já está aplicado.' })
+      this.cupom.markAsTouched()
+      return
+    }
+
     const reqObj = {
-      codigo
+      codigo,
+      subtotal: this.getSubtotal()
     }
 
     this.cuponsService.validarCupom(reqObj).subscribe({
       next: (response) => {
         const cupom = response.cupom
-        const valor_itens = this.getSubtotal()
-        let valorDesconto = 0
+        const substituiu = !!this.cupomAplicado
 
-        if (cupom.tipo === "percentual") {
-          valorDesconto = (valor_itens * cupom.valor) / 100
-        } else if (cupom.tipo === "valor") {
-          valorDesconto = cupom.valor
+        // Guarda só o necessário para recalcular o desconto
+        this.cupomAplicado = {
+          id: cupom.id,
+          codigo: cupom.codigo,
+          tipo: cupom.tipo,
+          valor: cupom.valor
         }
-
-        valorDesconto = Math.min(valorDesconto, valor_itens)
-        this.valor_desconto += valorDesconto
-        this.cupons_aplicados.push(cupom.id)
 
         this.mensagemErroCupom = null
-        this.mensagemSucessoCupom = 'Cupom aplicado com sucesso!'
+        this.mensagemSucessoCupom = substituiu
+          ? 'Cupom substituído. Apenas um cupom por pedido.'
+          : 'Cupom aplicado com sucesso!'
       },
       error: (err) => {
-        if (err.status == 500) {
-          console.error(err)
-          this.mensagemSucessoCupom = null;
-          const msg = 'Erro ao validar cupom';
-          this.cupom.setErrors({ apiError: msg });
-          this.cupom.markAsTouched();
-        }
-        else if (err.status = 400) {
-          this.mensagemSucessoCupom = null;
-          const msg = err?.error?.message;
-          this.cupom.setErrors({ apiError: msg });
-          this.cupom.markAsTouched();
-        }
+        console.error(err)
+        this.mensagemSucessoCupom = null;
+        const msg = err.status == 400 && err?.error?.message
+          ? err.error.message
+          : 'Erro ao validar cupom';
+        this.cupom.setErrors({ apiError: msg });
+        this.cupom.markAsTouched();
       }
     })
+  }
+
+  onRemoverCupom() {
+    this.cupomAplicado = null
+    this.cupom.setValue('')
+    this.mensagemSucessoCupom = null
+    this.mensagemErroCupom = null
   }
 
   onFinalizar() {
@@ -246,7 +270,8 @@ export class CarrinhoComponent implements OnInit {
       },
       valor_frete: this.valor_frete,
       valor_desconto: this.valor_desconto,
-      cupons_aplicados: this.cupons_aplicados,
+      cupom: this.cupomAplicado,
+      cupons_aplicados: this.cupomAplicado ? [this.cupomAplicado.id] : [],
       cep_destino: this.cep_destino.value
     });
 
@@ -283,7 +308,7 @@ export class CarrinhoComponent implements OnInit {
         this.sugestoes = response
 
         this.sugestoes.forEach((produto) => {
-          produto.img = this.produtosService.getImageURL(produto.imgPath)
+          produto.img = this.produtosService.getImagemPrincipalURL(produto)
         })
       },
       error: (err) => {

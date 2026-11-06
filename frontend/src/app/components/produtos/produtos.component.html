@@ -25,6 +25,11 @@
                     Sincronizar Produtos
                 </button>
 
+                <button mat-menu-item [disabled]="this.selection.selected.length != 1" (click)="onGerenciarImagens()">
+                    <mat-icon>photo_library</mat-icon>
+                    Gerenciar Imagens
+                </button>
+
                 <button mat-menu-item [disabled]="this.selection.selected.length <= 0" (click)="onSincronizarImagens()">
                     <mat-icon>image</mat-icon>
                     Sincronizar Imagens
@@ -84,6 +89,18 @@
                 <td mat-cell *matCellDef="let produto"> {{getQuantidade(produto) | number}} {{produto.unidade_medida}}
                 </td>
             </ng-container> -->
+
+                <ng-container matColumnDef="saldo">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Estoque </th>
+                    <td mat-cell *matCellDef="let produto">
+                        <span [style.color]="produto.saldo_disponivel <= 0 ? '#c62828' : null">
+                            {{ produto.saldo_disponivel ?? produto.saldo | number }}
+                        </span>
+                        @if (produto.saldo_disponivel != null && produto.saldo_disponivel != produto.saldo) {
+                            <small style="color:#888"> (saldo {{ produto.saldo | number }})</small>
+                        }
+                    </td>
+                </ng-container>
 
                 <ng-container matColumnDef="status">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>

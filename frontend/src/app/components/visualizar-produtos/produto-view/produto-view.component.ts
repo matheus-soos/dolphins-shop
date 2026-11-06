@@ -33,6 +33,25 @@ export class ProdutoViewComponent implements OnInit {
 
   produto: any
   quantidade: number = 1
+  imagens: string[] = []
+  imagemAtual: number = 0
+  readonly semImagem = ProdutosService.SEM_IMAGEM
+
+  /** Saldo disponível para venda (vem do backend: saldo - pedidos em aberto) */
+  get estoqueDisponivel(): number {
+    return Number(this.produto?.saldo_disponivel ?? this.produto?.saldo ?? 0)
+  }
+
+  get semEstoque(): boolean {
+    return !!this.produto && this.estoqueDisponivel <= 0
+  }
+
+  /** Mostra a descrição só quando ela agrega algo além do título */
+  get descricao(): string {
+    const descricao = (this.produto?.descricao || '').trim()
+    const nome = (this.produto?.nome || '').trim()
+    return descricao && descricao.toLowerCase() !== nome.toLowerCase() ? descricao : ''
+  }
   relacionados: Array<any> = []
   sugestoes: Array<any> = []
 
@@ -49,7 +68,11 @@ export class ProdutoViewComponent implements OnInit {
     this.produtosService.getProduto(id).subscribe({
       next: (res) => {
         this.produto = res.produto
-        this.produto.img = this.produtosService.getImageURL(this.produto.imgPath)
+        this.produto.img = this.produtosService.getImagemPrincipalURL(this.produto)
+
+        this.imagens = this.produtosService.getGaleriaURLs(this.produto)
+        this.imagemAtual = 0
+        this.quantidade = 1
       }
     })
   }
@@ -61,14 +84,13 @@ export class ProdutoViewComponent implements OnInit {
         this.sugestoes = response.sugestoes
 
         this.relacionados.forEach((produto) => {
-          produto.img = this.produtosService.getImageURL(produto.imgPath)
+          produto.img = this.produtosService.getImagemPrincipalURL(produto)
         })
 
         this.sugestoes.forEach((produto) => {
-          produto.img = this.produtosService.getImageURL(produto.imgPath)
+          produto.img = this.produtosService.getImagemPrincipalURL(produto)
         })
 
-        console.log(this.sugestoes, this.relacionados)
       },
       error: (err) => {
         console.error(err)
@@ -83,12 +105,42 @@ export class ProdutoViewComponent implements OnInit {
   }
 
   adicionarQuantidade() {
+    if (this.quantidade >= this.estoqueDisponivel) return
+
     this.quantidade += 1
   }
 
   adicionarCarrinho() {
-    this.carrinhosService.adicionarItem(this.produto.id, this.quantidade)
+    if (this.semEstoque) return
 
-    this.dialog.open(AdicionarCarrinhoComponent)
+    this.carrinhosService.adicionarItem(this.produto.id, this.quantidade)
+      .then(() => this.dialog.open(AdicionarCarrinhoComponent))
+      .catch((err: any) => {
+        console.error(err)
+        // 409 = estoque insuficiente (considera o que já está no carrinho)
+        alert(err?.error?.error || 'Não foi possível adicionar ao carrinho.')
+      })
+  }
+
+  // ----- Galeria -----
+  selecionarImagem(index: number) {
+    this.imagemAtual = index
+  }
+
+  imagemAnterior() {
+    if (!this.imagens.length) return
+    this.imagemAtual = (this.imagemAtual - 1 + this.imagens.length) % this.imagens.length
+  }
+
+  proximaImagem() {
+    if (!this.imagens.length) return
+    this.imagemAtual = (this.imagemAtual + 1) % this.imagens.length
+  }
+
+  onImagemErro(event: Event) {
+    const img = event.target as HTMLImageElement
+    if (!img.src.endsWith(this.semImagem)) {
+      img.src = this.semImagem
+    }
   }
 }

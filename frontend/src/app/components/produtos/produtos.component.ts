@@ -11,6 +11,8 @@ import { SearchFilterPipe } from '../../pipes/search-filter.pipe';
 import { RouterModule } from '@angular/router';
 import { ProdutosService } from '../../services/produtos.service';
 import { ProtheusService } from '../../services/protheus.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ProdutoImagensComponent } from './produto-imagens/produto-imagens.component';
 
 @Component({
   selector: 'app-produtos',
@@ -24,7 +26,8 @@ import { ProtheusService } from '../../services/protheus.service';
     CurrencyPipe,
     SearchFilterPipe,
     CommonModule,
-    RouterModule
+    RouterModule,
+    MatDialogModule
   ],
   templateUrl: './produtos.component.html',
   styleUrl: './produtos.component.scss',
@@ -34,11 +37,12 @@ export class ProdutosComponent implements OnInit {
 
   constructor(
     private produtosService: ProdutosService,
-    private protheusService: ProtheusService
+    private protheusService: ProtheusService,
+    private dialog: MatDialog
   ) { }
 
   selection = new SelectionModel(true)
-  displayedColumns: string[] = ["select", "nome", "categoria", "subcategoria", "valor_custo", "valor_venda", "status"]
+  displayedColumns: string[] = ["select", "nome", "categoria", "subcategoria", "valor_custo", "valor_venda", "saldo", "status"]
   dataSource = new MatTableDataSource(undefined)
   searchText: string = ''
   produtos: any[] = []
@@ -85,6 +89,22 @@ export class ProdutosComponent implements OnInit {
       error: (err) => {
         console.error(err)
       }
+    })
+  }
+
+  onGerenciarImagens() {
+    const produto: any = this.selection.selected[0]
+    if (!produto) return
+
+    const dialogRef = this.dialog.open(ProdutoImagensComponent, {
+      data: { produto },
+      width: '760px',
+      maxWidth: '95vw',
+      autoFocus: false
+    })
+
+    dialogRef.afterClosed().subscribe((alterou) => {
+      if (alterou) this.getProdutos()
     })
   }
 

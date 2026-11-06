@@ -223,3 +223,24 @@ main {
     grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
     gap:20px;
 }
+
+.cupom-aplicado {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 4px 8px 4px 12px;
+    border: 1px dashed #2e7d32;
+    border-radius: 8px;
+    background-color: #f1f8f1;
+    color: #2e7d32;
+    font-size: 14px;
+
+    span {
+        flex: 1;
+    }
+
+    button {
+        color: #555;
+    }
+}

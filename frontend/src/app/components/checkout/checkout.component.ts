@@ -13,6 +13,7 @@ import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 import { CheckoutService } from '../../services/checkout.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CheckoutStepsComponent } from '../checkout-steps/checkout-steps.component';
+import { CuponsService } from '../../services/cupons.service';
 
 declare var SafraPayTransparent: any;
 
@@ -47,7 +48,8 @@ export class CheckoutComponent implements OnInit {
     private checkoutService: CheckoutService,
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cuponsService: CuponsService
   ) {
     const anoAtual = new Date().getFullYear();
     for (let i = anoAtual; i <= anoAtual + 10; i++) {
@@ -58,9 +60,15 @@ export class CheckoutComponent implements OnInit {
   carrinho: any
   freteSelecionado: any
   cep_destino: string = ''
-  valor_desconto: number = 0
   valor_frete: number = 0
+  cupom: any = null
   cupons_aplicados: any[] = []
+  enviando: boolean = false
+
+  /** Recalcula o desconto sobre o subtotal atual (mesma regra do backend) */
+  get valor_desconto(): number {
+    return this.cuponsService.calcularDesconto(this.cupom, this.getSubtotal())
+  }
   forma_pagamento = new FormControl("")
   anos: number[] = []
   dadosCartao!: FormGroup
@@ -85,8 +93,8 @@ export class CheckoutComponent implements OnInit {
 
     this.freteSelecionado = data.frete;
     this.valor_frete = data.valor_frete;
-    this.valor_desconto = data.valor_desconto;
-    this.cupons_aplicados = data.cupons_aplicados;
+    this.cupom = data.cupom || null;
+    this.cupons_aplicados = this.cupom ? [this.cupom.id] : [];
     this.cep_destino = data.cep_destino
 
     SafraPayTransparent.setCredentials({
@@ -139,12 +147,32 @@ export class CheckoutComponent implements OnInit {
   }
 
   onContinuar() {
-    if (this.forma_pagamento.invalid) return;
+    if (this.forma_pagamento.invalid || !this.forma_pagamento.value) {
+      alert('Selecione a forma de pagamento.');
+      return;
+    }
+
+    if (this.enviando) return; // evita pedido duplicado com duplo clique
+    this.enviando = true;
 
     const handleSuccess = (response: any) => {
+      this.enviando = false;
       this.carrinhosService.limparCarrinhoLocal();
+      this.checkoutService.clear();
 
       this.router.navigate([`checkout/success/${response.pedido_id}`]);
+    };
+
+    // Mostra a mensagem do backend (estoque insuficiente, cupom inválido, cartão negado...)
+    const handleError = (err: any) => {
+      this.enviando = false;
+      console.error(err);
+      alert(err?.error?.message || 'Não foi possível finalizar o pedido. Tente novamente.');
+
+      // Sem estoque: volta para o carrinho para o cliente ajustar
+      if (err?.status === 409) {
+        this.router.navigate(['/carrinho']);
+      }
     };
     
     const reqBase = {
@@ -185,13 +213,13 @@ export class CheckoutComponent implements OnInit {
 
           this.checkoutService.finalizarCartao(reqObj).subscribe({
             next: handleSuccess,
-            error: (err) => {
-              console.error(err);
-            }
+            error: handleError
           });
         },
         error: (err: Error) => {
+          this.enviando = false;
           console.error("Erro ao tokenizar cartão", err);
+          alert('Não foi possível validar os dados do cartão. Confira e tente novamente.');
         }
       });
     }
@@ -199,18 +227,14 @@ export class CheckoutComponent implements OnInit {
     else if (this.forma_pagamento.value == "pix") {
       this.checkoutService.finalizarPix(reqBase).subscribe({
         next: handleSuccess,
-        error: (err) => {
-          console.error(err);
-        }
+        error: handleError
       });
     }
 
     else if (this.forma_pagamento.value == "dinheiro") {
       this.checkoutService.finalizarDinheiro(reqBase).subscribe({
         next: handleSuccess,
-        error: (err) => {
-          console.error(err);
-        }
+        error: handleError
       });
     }
   }

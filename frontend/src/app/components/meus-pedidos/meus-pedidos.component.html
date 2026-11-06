@@ -1,0 +1,127 @@
+<main>
+  <div class="wrapper">
+    <div class="page-header">
+      <h2>Meus pedidos</h2>
+      @if (!carregando && pedidos.length) {
+        <span class="count">{{ pedidos.length }} pedido(s)</span>
+      }
+    </div>
+
+    @if (carregando) {
+      <div class="estado">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else if (erro) {
+      <div class="estado">
+        <mat-icon>error_outline</mat-icon>
+        <p>Não foi possível carregar seus pedidos.</p>
+        <button mat-stroked-button (click)="getPedidos()">Tentar novamente</button>
+      </div>
+    } @else if (!pedidos.length) {
+      <div class="estado">
+        <mat-icon>shopping_bag</mat-icon>
+        <p>Você ainda não fez nenhum pedido.</p>
+        <button mat-flat-button color="primary" routerLink="/">Começar a comprar</button>
+      </div>
+    } @else {
+      <div class="pedidos">
+        @for (pedido of pedidos; track pedido.id) {
+          @let status = getStatus(pedido.status);
+          @let aberto = expandido === pedido.id;
+
+          <section class="pedido" [class.aberto]="aberto">
+            <button class="pedido-header" (click)="toggle(pedido)" [attr.aria-expanded]="aberto">
+              <div class="info-principal">
+                <span class="numero">Pedido #{{ pedido.numero_pedido }}</span>
+                <span class="data">{{ pedido.createdAt | date: "dd/MM/yyyy 'às' HH:mm" }}</span>
+              </div>
+
+              <span class="status" [ngClass]="status.classe">
+                <mat-icon>{{ status.icon }}</mat-icon>
+                {{ status.label }}
+              </span>
+
+              <div class="thumbs">
+                @for (item of pedido.itens.slice(0, 4); track item.id) {
+                  <img [src]="item.img" [alt]="item.Produto?.nome" (error)="onImagemErro($event)">
+                }
+                @if (pedido.itens.length > 4) {
+                  <span class="mais">+{{ pedido.itens.length - 4 }}</span>
+                }
+              </div>
+
+              <div class="total">
+                <span>{{ pedido.quantidade }} item(ns)</span>
+                <strong>{{ pedido.valor_total | currency: 'BRL' }}</strong>
+              </div>
+
+              <mat-icon class="chevron">{{ aberto ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+
+            @if (aberto) {
+              <div class="pedido-body">
+                @if (status.descricao) {
+                  <p class="status-descricao" [ngClass]="status.classe">{{ status.descricao }}</p>
+                }
+
+                @if (podePagar(pedido)) {
+                  <button mat-flat-button color="primary" class="pagar" (click)="pagar(pedido, $event)">
+                    <mat-icon>qr_code_2</mat-icon>
+                    Ver QR Code do PIX
+                  </button>
+                }
+
+                <div class="itens">
+                  @for (item of pedido.itens; track item.id) {
+                    <div class="item">
+                      <img [src]="item.img" [alt]="item.Produto?.nome" (error)="onImagemErro($event)">
+                      <div class="item-info">
+                        <a (click)="verProduto(item.produto_id, $event)">{{ item.Produto?.nome || 'Produto' }}</a>
+                        <span>{{ item.quantidade }} x {{ item.valor_unitario | currency: 'BRL' }}</span>
+                      </div>
+                      <strong>{{ item.valor_total | currency: 'BRL' }}</strong>
+                    </div>
+                  }
+                </div>
+
+                <div class="resumo-grid">
+                  <div class="bloco">
+                    <h4>Pagamento</h4>
+                    <p>{{ formaPagamentoLabel(pedido.forma_pagamento) }}</p>
+                    @if (pedido.pagamento?.parcelas > 1) {
+                      <p>{{ pedido.pagamento.parcelas }}x</p>
+                    }
+                  </div>
+
+                  <div class="bloco">
+                    <h4>Entrega</h4>
+                    @if (detalhes[pedido.id]?.endereco; as end) {
+                      <p>{{ end.logradouro }}, {{ end.numero }}@if (end.complemento) { - {{ end.complemento }}}</p>
+                      <p>{{ end.bairro }} - {{ end.cidade }}/{{ end.estado }}</p>
+                      <p>CEP {{ end.cep }}</p>
+                    } @else {
+                      <p class="muted">Carregando...</p>
+                    }
+                  </div>
+
+                  <div class="bloco valores">
+                    <h4>Resumo</h4>
+                    <div class="linha"><span>Subtotal</span><span>{{ pedido.subtotal | currency: 'BRL' }}</span></div>
+                    <div class="linha"><span>Frete</span><span>{{ pedido.frete | currency: 'BRL' }}</span></div>
+                    @if (pedido.desconto_total > 0) {
+                      <div class="linha desconto">
+                        <span>Desconto @if (detalhes[pedido.id]?.cupom_codigo) {({{ detalhes[pedido.id].cupom_codigo }})}</span>
+                        <span>- {{ pedido.desconto_total | currency: 'BRL' }}</span>
+                      </div>
+                    }
+                    <div class="linha total-final"><span>Total</span><span>{{ pedido.valor_total | currency: 'BRL' }}</span></div>
+                  </div>
+                </div>
+              </div>
+            }
+          </section>
+        }
+      </div>
+    }
+  </div>
+</main>

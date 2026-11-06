@@ -25,7 +25,8 @@ const Cliente = database.define("Cliente", {
         allowNull: true
     },
     data_nascimento: {
-        type: DataTypes.DATE,
+        // DATEONLY evita o deslocamento de fuso horário (ex.: 15/03 virar 14/03)
+        type: DataTypes.DATEONLY,
         allowNull: true
     },
     cep: {

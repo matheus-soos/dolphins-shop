@@ -6,21 +6,44 @@ const Pedido_Venda_Item = require("../models/pedido_venda_item");
 const Pagamento = require("../models/pagamento");
 const Cliente = require("../models/cliente");
 const Produto = require("../models/produto");
-const Cupom = require("../models/cupom");
 
 const safrapayAuth = require("../middleware/safrapayAuth");
 const safrapayService = require("../services/safrapayService");
 const { calcularFreteMelhorEnvio } = require("../services/melhorenvioService");
+const { validarEstoqueItens } = require("../services/estoqueService");
+const { validarCuponsCheckout, consumirCupom, arredondar } = require("../services/cupomService");
+const { aplicarStatusCharge } = require("../services/pagamentoService");
 const auth = require("../middleware/auth");
 
 /**
- * Função utilitária interna para validar produtos, recalcular frete no MelhorEnvio e aplicar cupons
+ * Normaliza os itens vindos do front (agrupa produto repetido, valida quantidade)
  */
-async function processarTotaisCheckout({ itens, freteSelecionado, cep_destino, cupons_aplicados }) {
+function normalizarItens(itens) {
     if (!itens || !Array.isArray(itens) || itens.length === 0) {
         throw { status: 400, message: "itens obrigatório" };
     }
 
+    const agrupado = new Map();
+
+    for (const item of itens) {
+        const produto_id = Number(item.produto_id);
+        const quantidade = Number(item.quantidade);
+
+        if (!produto_id || !Number.isInteger(quantidade) || quantidade <= 0) {
+            throw { status: 400, message: "Item inválido no carrinho" };
+        }
+
+        agrupado.set(produto_id, (agrupado.get(produto_id) || 0) + quantidade);
+    }
+
+    return [...agrupado].map(([produto_id, quantidade]) => ({ produto_id, quantidade }));
+}
+
+/**
+ * Função utilitária interna para validar produtos, recalcular frete no MelhorEnvio e o subtotal.
+ * (Cupom e estoque são validados depois, dentro da transação, com lock.)
+ */
+async function processarTotaisCheckout({ itens, freteSelecionado, cep_destino }) {
     if (!freteSelecionado?.id || !freteSelecionado?.companyId) {
         throw { status: 400, message: "freteSelecionado inválido" };
     }
@@ -54,9 +77,9 @@ async function processarTotaisCheckout({ itens, freteSelecionado, cep_destino, c
     });
 
     // 2) Calcular subtotal real
-    const subtotal = itensReais.reduce((acc, item) => {
+    const subtotal = arredondar(itensReais.reduce((acc, item) => {
         return acc + (item.valor_unitario * item.quantidade);
-    }, 0);
+    }, 0));
 
     // 3) Recalcular frete real via MelhorEnvio (sem confiar no front)
     const fretesCalculados = await calcularFreteMelhorEnvio({
@@ -74,67 +97,56 @@ async function processarTotaisCheckout({ itens, freteSelecionado, cep_destino, c
 
     const freteFinal = Number(freteReal.price);
 
-    // 4) Validar cupons no backend e calcular desconto
-    let descontoFinal = 0;
-
-    if (cupons_aplicados?.length) {
-        const cupons = await Cupom.findAll({
-            where: { id: cupons_aplicados }
-        });
-
-        for (const cupom of cupons) {
-            if (cupom.tipo === "percentual") {
-                descontoFinal += (subtotal * cupom.valor) / 100;
-            } else if (cupom.tipo === "valor") {
-                descontoFinal += cupom.valor;
-            }
-        }
-
-        descontoFinal = Math.min(descontoFinal, subtotal);
-    }
-
-    // 5) Total real final
-    const total = subtotal + freteFinal - descontoFinal;
-
     return {
         itensReais,
         subtotal,
-        freteFinal,
-        descontoFinal,
-        total
+        freteFinal
     };
 }
 
-// FINALIZAR CHECKOUT PIX
-router.post("/finalizar/pix", auth, safrapayAuth, async (req, res) => {
+/**
+ * Fluxo comum dos 3 meios de pagamento:
+ * calcula totais, valida estoque + cupom com lock, cria pedido e itens,
+ * consome o cupom e chama `pagar` para registrar o pagamento.
+ */
+async function criarPedidoCheckout(req, { forma_pagamento, status_inicial, pagar }) {
+    const { freteSelecionado, cep_destino, cupons_aplicados } = req.body;
+
+    const cliente = await Cliente.findOne({
+        where: { user_id: req.user.user_id }
+    });
+
+    if (!cliente?.id) {
+        throw { status: 400, message: "Cliente não encontrado" };
+    }
+
+    const itens = normalizarItens(req.body.itens);
+
+    // Frete é calculado fora da transação (chamada externa)
+    const { itensReais, subtotal, freteFinal } = await processarTotaisCheckout({
+        itens,
+        freteSelecionado,
+        cep_destino
+    });
+
     const transaction = await database.transaction();
 
     try {
-        const { itens, freteSelecionado, cep_destino, cupons_aplicados } = req.body;
+        // Estoque e cupom validados com lock para evitar venda/uso em duplicidade
+        await validarEstoqueItens(itensReais, { transaction });
 
-        const cliente = await Cliente.findOne({
-            where: { user_id: req.user.user_id }
-        });
+        const { cupom, desconto } = await validarCuponsCheckout(cupons_aplicados, subtotal, { transaction });
 
-        if (!cliente?.id) {
-            return res.status(400).json({ message: "Cliente não encontrado" });
-        }
-
-        // Validação e cálculo seguro dos valores
-        const { itensReais, freteFinal, descontoFinal, total } = await processarTotaisCheckout({
-            itens,
-            freteSelecionado,
-            cep_destino,
-            cupons_aplicados
-        });
+        const total = arredondar(subtotal + freteFinal - desconto);
 
         // 1) Cria pedido
         const pedido = await Pedido_Venda.create({
             cliente_id: cliente.id,
-            status: "Pendente",
-            forma_pagamento: "Pix",
+            cupom_id: cupom?.id || null,
+            status: status_inicial,
+            forma_pagamento,
             valor_total: total,
-            desconto_total: descontoFinal,
+            desconto_total: desconto,
             frete: freteFinal
         }, { transaction });
 
@@ -145,241 +157,170 @@ router.post("/finalizar/pix", auth, safrapayAuth, async (req, res) => {
                 produto_id: item.produto_id,
                 quantidade: item.quantidade,
                 valor_unitario: item.valor_unitario,
-                valor_total: item.valor_unitario * item.quantidade
+                valor_total: arredondar(item.valor_unitario * item.quantidade)
             }, { transaction });
         }
 
-        // 3) Gera Pix no SafraPay
-        const result = await safrapayService.gerarPix({
-            token: req.safrapayToken,
-            amount: total
-        });
+        // 3) Consome um uso do cupom
+        await consumirCupom(cupom, { transaction });
 
-        // 4) Salva pagamento
-        const pagamentoCriado = await Pagamento.create({
-            pedido_venda_id: pedido.id,
-            charge_id: result.charge.id,
-            nsu: result.charge.nsu,
-            tipo_pagamento: "Pix",
-            valor: result.charge.transactions[0].amount,
-            status: result.charge.transactions[0].transactionStatus,
-            adquirente: result.charge.transactions[0].acquirer,
-            customer_id: result.charge.customerId,
-            qr_code: result.charge.transactions[0].qrCode,
-            qr_code_base64: result.charge.transactions[0].qrCodeBase64,
-            token_pix: result.charge.transactions[0].token,
-            transaction_id: result.charge.transactions[0].transactionId,
-            data_transacao: result.charge.transactions[0].creationDateTime
-        }, { transaction });
+        // 4) Pagamento (específico de cada forma)
+        const pagamento = await pagar({ pedido, total, transaction });
 
         await transaction.commit();
+
+        return { pedido, pagamento };
+    } catch (error) {
+        await transaction.rollback();
+        throw error;
+    }
+}
+
+function tratarErroCheckout(res, error, mensagemPadrao) {
+    console.error(error);
+
+    if (error.status) {
+        return res.status(error.status).json({
+            message: error.message,
+            indisponiveis: error.indisponiveis
+        });
+    }
+
+    res.status(500).json({
+        message: mensagemPadrao,
+        error: error.message || error
+    });
+}
+
+// FINALIZAR CHECKOUT PIX
+router.post("/finalizar/pix", auth, safrapayAuth, async (req, res) => {
+    try {
+        const { pedido, pagamento } = await criarPedidoCheckout(req, {
+            forma_pagamento: "Pix",
+            status_inicial: "Pendente",
+            pagar: async ({ pedido, total, transaction }) => {
+                // Gera Pix no SafraPay
+                const result = await safrapayService.gerarPix({
+                    token: req.safrapayToken,
+                    amount: total
+                });
+
+                const tx = result.charge.transactions[0];
+
+                return Pagamento.create({
+                    pedido_venda_id: pedido.id,
+                    charge_id: result.charge.id,
+                    nsu: result.charge.nsu,
+                    tipo_pagamento: "Pix",
+                    valor: tx.amount,
+                    status: tx.transactionStatus,
+                    adquirente: tx.acquirer,
+                    customer_id: result.charge.customerId,
+                    qr_code: tx.qrCode,
+                    qr_code_base64: tx.qrCodeBase64,
+                    token_pix: tx.token,
+                    transaction_id: tx.transactionId,
+                    data_transacao: tx.creationDateTime
+                }, { transaction });
+            }
+        });
 
         res.json({
             success: true,
             pedido_id: pedido.id,
-            pagamento_id: pagamentoCriado.id
+            pagamento_id: pagamento.id
         });
-
     } catch (error) {
-        await transaction.rollback();
-        console.error(error);
-
-        if (error.status) {
-            return res.status(error.status).json({ message: error.message });
-        }
-
-        res.status(500).json({
-            message: "Erro ao finalizar checkout Pix",
-            error: error.message || error
-        });
+        tratarErroCheckout(res, error, "Erro ao finalizar checkout Pix");
     }
 });
 
 // FINALIZAR CHECKOUT CARTÃO
 router.post("/finalizar/cartao", auth, safrapayAuth, async (req, res) => {
-    const transaction = await database.transaction();
+    const { temporaryToken } = req.body;
+
+    if (!temporaryToken) {
+        return res.status(400).json({ message: "temporaryToken obrigatório" });
+    }
+
+    let chargeCartao = null;
 
     try {
-        const { itens, freteSelecionado, cep_destino, cupons_aplicados, temporaryToken } = req.body;
-
-        const cliente = await Cliente.findOne({
-            where: { user_id: req.user.user_id }
-        });
-
-        if (!cliente?.id) {
-            return res.status(400).json({ message: "Cliente não encontrado" });
-        }
-
-        if (!temporaryToken) {
-            return res.status(400).json({ message: "temporaryToken obrigatório" });
-        }
-
-        // Validação e cálculo seguro dos valores
-        const { itensReais, freteFinal, descontoFinal, total } = await processarTotaisCheckout({
-            itens,
-            freteSelecionado,
-            cep_destino,
-            cupons_aplicados
-        });
-
-        // 1) Cria pedido
-        const pedido = await Pedido_Venda.create({
-            cliente_id: cliente.id,
-            status: "Pendente",
+        const { pedido, pagamento } = await criarPedidoCheckout(req, {
             forma_pagamento: "Credito",
-            valor_total: total,
-            desconto_total: descontoFinal,
-            frete: freteFinal
-        }, { transaction });
+            status_inicial: "Pendente",
+            pagar: async ({ pedido, total, transaction }) => {
+                // Autoriza pagamento no SafraPay
+                const result = await safrapayService.autorizarCartao({
+                    token: req.safrapayToken,
+                    temporaryToken,
+                    amount: total
+                });
 
-        // 2) Cria itens do pedido
-        for (const item of itensReais) {
-            await Pedido_Venda_Item.create({
-                pedido_venda_id: pedido.id,
-                produto_id: item.produto_id,
-                quantidade: item.quantidade,
-                valor_unitario: item.valor_unitario,
-                valor_total: item.valor_unitario * item.quantidade
-            }, { transaction });
-        }
+                if (!result?.charge?.id) {
+                    throw { status: 400, message: "Erro ao autorizar pagamento no cartão" };
+                }
 
-        // 3) Autoriza pagamento no SafraPay
-        const result = await safrapayService.autorizarCartao({
-            token: req.safrapayToken,
-            temporaryToken,
-            amount: total
+                chargeCartao = result.charge;
+                const tx = result.charge.transactions[0];
+
+                return Pagamento.create({
+                    pedido_venda_id: pedido.id,
+                    charge_id: result.charge.id,
+                    nsu: result.charge.nsu,
+                    tipo_pagamento: "Credito",
+                    valor: tx.amount,
+                    status: tx.transactionStatus,
+                    adquirente: tx.acquirer,
+                    customer_id: result.charge.customerId,
+                    transaction_id: tx.transactionId,
+                    data_transacao: tx.creationDateTime
+                }, { transaction });
+            }
         });
 
-        if (!result?.charge?.id) {
-            await transaction.rollback();
-            return res.status(400).json({
-                message: "Erro ao autorizar pagamento no cartão",
-                result
+        // Aprovado -> "Pago" / Negado -> "Cancelado" (libera estoque e cupom)
+        const sync = await aplicarStatusCharge(pagamento, chargeCartao, { forcar: true });
+
+        if (sync.cancelado) {
+            return res.status(402).json({
+                message: "Pagamento não autorizado. Verifique os dados do cartão ou tente outra forma de pagamento.",
+                pedido_id: pedido.id
             });
         }
-
-        // 4) Salva pagamento
-        const pagamentoCriado = await Pagamento.create({
-            pedido_venda_id: pedido.id,
-            charge_id: result.charge.id,
-            nsu: result.charge.nsu,
-            tipo_pagamento: "Credito",
-            valor: result.charge.transactions[0].amount,
-            status: result.charge.transactions[0].transactionStatus,
-            adquirente: result.charge.transactions[0].acquirer,
-            customer_id: result.charge.customerId,
-            transaction_id: result.charge.transactions[0].transactionId,
-            data_transacao: result.charge.transactions[0].creationDateTime
-        }, { transaction });
-
-        // 5) Se aprovado já marca o pedido como pago
-        const statusTransacao = result.charge.transactions[0].transactionStatus;
-
-        if (statusTransacao === "Approved" || statusTransacao === "Aprovado") {
-            await Pedido_Venda.update({
-                status: "Pago"
-            }, {
-                where: { id: pedido.id },
-                transaction
-            });
-        }
-
-        await transaction.commit();
 
         res.json({
             success: true,
             pedido_id: pedido.id,
-            pagamento_id: pagamentoCriado.id
+            pagamento_id: pagamento.id
         });
-
     } catch (error) {
-        await transaction.rollback();
-        console.error(error);
-
-        if (error.status) {
-            return res.status(error.status).json({ message: error.message });
-        }
-
-        res.status(500).json({
-            message: "Erro ao finalizar checkout no cartão",
-            error: error.message || error
-        });
+        tratarErroCheckout(res, error, "Erro ao finalizar checkout no cartão");
     }
 });
 
 // FINALIZAR CHECKOUT DINHEIRO
 router.post("/finalizar/dinheiro", auth, async (req, res) => {
-    const transaction = await database.transaction();
-
     try {
-        const { itens, freteSelecionado, cep_destino, cupons_aplicados } = req.body;
-
-        const cliente = await Cliente.findOne({
-            where: { user_id: req.user.user_id }
-        });
-
-        if (!cliente?.id) {
-            return res.status(400).json({ message: "Cliente não encontrado" });
-        }
-
-        // Validação e cálculo seguro dos valores
-        const { itensReais, freteFinal, descontoFinal, total } = await processarTotaisCheckout({
-            itens,
-            freteSelecionado,
-            cep_destino,
-            cupons_aplicados
-        });
-
-        // 1) Cria pedido
-        const pedido = await Pedido_Venda.create({
-            cliente_id: cliente.id,
-            status: "Pago",
+        const { pedido, pagamento } = await criarPedidoCheckout(req, {
             forma_pagamento: "Dinheiro",
-            valor_total: total,
-            desconto_total: descontoFinal,
-            frete: freteFinal
-        }, { transaction });
-
-        // 2) Cria itens do pedido
-        for (const item of itensReais) {
-            await Pedido_Venda_Item.create({
+            status_inicial: "Pago",
+            pagar: ({ pedido, total, transaction }) => Pagamento.create({
                 pedido_venda_id: pedido.id,
-                produto_id: item.produto_id,
-                quantidade: item.quantidade,
-                valor_unitario: item.valor_unitario,
-                valor_total: item.valor_unitario * item.quantidade
-            }, { transaction });
-        }
-
-        // 3) Salva pagamento
-        const pagamentoCriado = await Pagamento.create({
-            pedido_venda_id: pedido.id,
-            charge_id: 0,
-            tipo_pagamento: "Dinheiro",
-            valor: total,
-            status: "Pago"
-        }, { transaction });
-
-        await transaction.commit();
+                charge_id: 0,
+                tipo_pagamento: "Dinheiro",
+                valor: total,
+                status: "Pago"
+            }, { transaction })
+        });
 
         res.json({
             success: true,
             pedido_id: pedido.id,
-            pagamento_id: pagamentoCriado.id
+            pagamento_id: pagamento.id
         });
-
     } catch (error) {
-        await transaction.rollback();
-        console.error(error);
-
-        if (error.status) {
-            return res.status(error.status).json({ message: error.message });
-        }
-
-        res.status(500).json({
-            message: "Erro ao finalizar checkout em dinheiro",
-            error: error.message || error
-        });
+        tratarErroCheckout(res, error, "Erro ao finalizar checkout em dinheiro");
     }
 });
 

@@ -24,7 +24,7 @@
                 <div class="form-group">
                     <mat-form-field appearance="outline">
                         <mat-label>Descrição:</mat-label>
-                        <input matInput name="descricao" type="text" formControlName="descricao">
+                        <textarea matInput name="descricao" formControlName="descricao" rows="4"></textarea>
                     </mat-form-field>
                 </div>
             </div>
@@ -73,6 +73,10 @@
                 </div>
 
                 <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Saldo em Estoque:</mat-label>
+                        <input matInput type="number" min="0" step="1" formControlName="saldo">
+                    </mat-form-field>
                 </div>
             </div>
 

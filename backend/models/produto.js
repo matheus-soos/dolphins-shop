@@ -17,10 +17,6 @@ const Produto = database.define("Produto", {
         foreignKey: true,
         allowNull: true
     },
-    imgPath: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
     cod_produto: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -39,7 +35,7 @@ const Produto = database.define("Produto", {
         allowNull: false
     },
     descricao: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false
     },
     valor_custo: {

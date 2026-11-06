@@ -16,6 +16,7 @@ import { EntregaComponent } from './components/entrega/entrega.component';
 import { BannersComponent } from './components/banners/banners.component';
 import { SobreNosComponent } from './components/sobre-nos/sobre-nos.component';
 import { PedidoSucessoComponent } from './components/checkout/pedido-sucesso/pedido-sucesso.component';
+import { MeusPedidosComponent } from './components/meus-pedidos/meus-pedidos.component';
 
 export const routes: Routes = [
     { path: "", pathMatch: "full", component: InicioComponent },
@@ -27,6 +28,7 @@ export const routes: Routes = [
     { path: "checkout", component: CheckoutComponent },
     { path: "checkout/success/:id", component: PedidoSucessoComponent },
     { path: "cadastro", component: CadastroComponent },
+    { path: "meus-pedidos", component: MeusPedidosComponent },
     { path: "admin/produtos", component: ProdutosComponent },
     { path: "admin/produtos/novo-produto", component: NovoProdutoComponent },
     { path: "admin/categorias", component: CategoriasComponent },
